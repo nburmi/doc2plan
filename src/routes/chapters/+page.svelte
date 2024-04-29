@@ -6,7 +6,6 @@
     import Fa from 'svelte-fa'
     import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-    import Chapters from '../../components/Chapters.svelte';
 
     $: openAI = get(openaiStore).assistantId !== '';
     let chapters = get(planStore).chapters;

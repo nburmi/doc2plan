@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { page } from '$app/stores';
     import { openaiStore } from '../stores/openai';
     import { get } from 'svelte/store';
     import Topics from './Topics.svelte';
@@ -10,10 +9,6 @@
     }
 
     export let chapter: Chapter;
-
-    const getChapterName = () => {
-        return chapter ? `: ${chapter.name}` : '';
-    }
 </script>
 
 <!-- <header class="card-header flex justify-center items-center">
