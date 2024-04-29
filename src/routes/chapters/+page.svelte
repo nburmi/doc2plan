@@ -56,7 +56,7 @@
         <Fa icon={faPlus} />
     </button>
     {#if openAI}
-        <button class="btn btn-sm variant-filled-secondary" on:click={extractChapters} use:popup={popupHover}>
+        <button class="btn btn-sm variant-filled-secondary [&>*]:pointer-events-none"  on:click={extractChapters} use:popup={popupHover}>
             <Fa icon={faWandMagicSparkles} />
         </button>
 
