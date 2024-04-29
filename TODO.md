@@ -4,3 +4,4 @@ Add page for setting AI.
 Style the pages.
 Lignt switch for dark mode remebering the user choice.
 Loading animations.
+add note that AI is not perfect and makes mistakes.
