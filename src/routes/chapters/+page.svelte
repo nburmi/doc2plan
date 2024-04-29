@@ -4,8 +4,11 @@
     import { planStore } from '../../stores/plan';
     import Chapter from '../../components/Chapter.svelte';
     import Fa from 'svelte-fa'
-    import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
+    import { faPlus, faTrash, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons'
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+    import { popup } from '@skeletonlabs/skeleton';
+    import type { PopupSettings } from '@skeletonlabs/skeleton';
+
 
     $: openAI = get(openaiStore).assistantId !== '';
     let chapters = get(planStore).chapters;
@@ -38,6 +41,12 @@
     const extractChapters = async () => {
         console.log('extracting chapters');
     };
+
+    const popupHover: PopupSettings = {
+        event: 'hover',
+        target: 'popupHover',
+        placement: 'bottom'
+    };
 </script>
 
 
@@ -47,7 +56,14 @@
         <Fa icon={faPlus} />
     </button>
     {#if openAI}
-        <button class="btn btn-sm variant-filled-secondary" on:click={extractChapters}>AI: extract chapters</button>
+        <button class="btn btn-sm variant-filled-secondary" on:click={extractChapters} use:popup={popupHover}>
+            <Fa icon={faWandMagicSparkles} />
+        </button>
+
+        <div class="card p-4 variant-filled-secondary" data-popup="popupHover">
+            <p>AI: extract chapters</p>
+            <div class="arrow variant-filled-secondary" />
+        </div>
     {/if}
 </div>
 

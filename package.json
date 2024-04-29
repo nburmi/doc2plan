@@ -28,6 +28,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@floating-ui/dom": "^1.6.4",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "openai": "^4.38.2",
     "svelte-fa": "^4.0.2",
