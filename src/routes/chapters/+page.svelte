@@ -34,16 +34,20 @@
             });
         };
     };
+
+    const extractChapters = async () => {
+        console.log('extracting chapters');
+    };
 </script>
 
 
 <div class="flex">
     <h1 class="text-2xl font-bold">Chapters to cover:</h1>
-    <button type="button" class="btn btn-sm variant-ringed" on:click={addChapter}>
+    <button type="button" class="btn btn-sm variant-filled" on:click={addChapter}>
         <Fa icon={faPlus} />
     </button>
     {#if openAI}
-        <button class="btn btn-sm variant-filled-secondary">AI: extract chapters</button>
+        <button class="btn btn-sm variant-filled-secondary" on:click={extractChapters}>AI: extract chapters</button>
     {/if}
 </div>
 

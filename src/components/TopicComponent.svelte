@@ -89,7 +89,7 @@
 <div class="flex flex-col min-w-full">
     {#if openAI}
     <label class="label">
-        <input class="input" type="text" placeholder="Path" bind:value={topic.path} on:change={updateTopic} required/>
+        <input class="input" type="text" placeholder="AI: Path" bind:value={topic.path} on:change={updateTopic} required/>
     </label>
     {/if}
 
@@ -109,7 +109,7 @@
     <!-- if with AI then show button regenerate -->
     {#if openAI}
         <div>
-            <button class="btn variant-filled" on:click={regenerate}>Regenerate</button>
+            <button class="btn btn-sm variant-filled-secondary" on:click={regenerate}>Regenerate</button>
         </div>
     {/if}
 

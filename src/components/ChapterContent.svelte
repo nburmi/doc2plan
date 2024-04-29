@@ -5,7 +5,7 @@
 
     let keyMoments = '';
     const extractKeyMoments = () => {
-        console.log(keyMoments);
+        console.log('extracting key moments');
     }
 
     export let chapter: Chapter;
@@ -13,10 +13,10 @@
 
 <!-- <header class="card-header flex justify-center items-center">
 </header> -->
-<section class="p-4">
+<section class="">
     {#if get(openaiStore).assistantId !== ''}
-    <button class="btn variant-filled-secondary" on:click={extractKeyMoments}>AI: Extract key moments</button>
     <textarea bind:value={keyMoments} class="textarea" placeholder="Key moments"></textarea>
+    <button class="btn btn-sm variant-filled-secondary" on:click={extractKeyMoments}>AI: Extract key moments</button>
     {/if}
 
     <!-- flex col -->

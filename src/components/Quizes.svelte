@@ -36,6 +36,10 @@
         quizes[index] = event.detail.quiz;
         dispatch('updateQuizes', {quizes});
     }
+
+    const generateQuizes = () => {
+        console.log('generating quizes');
+    }
 </script>
 
 
@@ -44,6 +48,8 @@
     <button class="btn btn-sm variant-filled" on:click={addQuiz}>
         <Fa icon={faPlus} />
     </button>
+    <!-- button AI generate -->
+    <button class="btn btn-sm variant-filled-secondary" on:click={generateQuizes}>AI: generate quizes</button>
 </div>
 
 

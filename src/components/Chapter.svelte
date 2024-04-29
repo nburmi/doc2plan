@@ -4,14 +4,6 @@
 
     export let chapter: Chapter;
 
-    // delete chapter
-    const deleteChapter = () => {
-        planStore.update((store) => {
-            store.chapters = store.chapters.filter((c) => c.id !== chapter.id);
-            return store;
-        });
-    };
-
     // update chapter
     const updateChapter = () => {
         planStore.update((store) => {
