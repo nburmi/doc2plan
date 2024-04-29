@@ -4,14 +4,16 @@
     import { planStore } from '../../stores/plan';
     import Chapter from '../../components/Chapter.svelte';
     import Fa from 'svelte-fa'
-    import { faPlus, faTrash, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons'
+    import { faPlus, faTrash, faWandMagicSparkles, faSpinner } from '@fortawesome/free-solid-svg-icons'
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
     import { popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
+    import { extractChapters as aiExtractChapters } from '$lib/openai';
 
 
     $: openAI = get(openaiStore).assistantId !== '';
     let chapters = get(planStore).chapters;
+    let loading = false;
 
     planStore.subscribe((store) => {
         chapters = store.chapters;
@@ -39,7 +41,18 @@
     };
 
     const extractChapters = async () => {
-        console.log('extracting chapters');
+        loading = true;
+        try {
+            let extracted = await aiExtractChapters();
+            planStore.update((store) => {
+                store.chapters = extracted;
+                return store;
+            });
+            loading = false;
+        } catch (e) {
+            loading = false;
+            console.error(e);
+        }
     };
 
     const popupHover: PopupSettings = {
@@ -56,8 +69,12 @@
         <Fa icon={faPlus} />
     </button>
     {#if openAI}
-        <button class="btn btn-sm variant-filled-secondary [&>*]:pointer-events-none"  on:click={extractChapters} use:popup={popupHover}>
-            <Fa icon={faWandMagicSparkles} />
+        <button class="btn btn-sm variant-filled-secondary [&>*]:pointer-events-none"  on:click={extractChapters} use:popup={popupHover} disabled={loading}>
+            {#if loading}
+                <Fa icon={faSpinner} class="animate-spin" />
+            {:else}
+                <Fa icon={faWandMagicSparkles} />
+            {/if}
         </button>
 
         <div class="card p-4 variant-filled-secondary" data-popup="popupHover">

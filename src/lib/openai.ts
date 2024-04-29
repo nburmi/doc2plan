@@ -32,7 +32,7 @@ export async function isValidApiKey(apikey: string) : Promise<boolean> {
 }
 
 const params = {
-    name: 'I have a plan',
+    name: 'ihaveaplan',
     model: 'gpt-3.5-turbo-0125',
     description: 'Create a learning plan from your documents.',
     instructions: 'You are helpfull assistant that can generate learning plan based on user goals and options.',
@@ -129,26 +129,17 @@ export async function clearOpenAI() {
     );
 
     try {
-        if (get(openaiStore).threadId) {
-            await openai.beta.threads.del(get(openaiStore).threadId);
-        }
-
-        if (get(openaiStore).assistantId) {
-            await openai.beta.assistants.del(get(openaiStore).assistantId);
-        }
-
-        if (get(openaiStore).vectorStoreId) {
-            await openai.beta.vectorStores.del(get(openaiStore).vectorStoreId);
-        }
-
-        if (get(openaiStore).fileId) {
-            await openai.files.del(get(openaiStore).fileId);
-        }
+        if (get(openaiStore).threadId) await openai.beta.threads.del(get(openaiStore).threadId);
+        if (get(openaiStore).assistantId) await openai.beta.assistants.del(get(openaiStore).assistantId);
+        if (get(openaiStore).vectorStoreId) await openai.beta.vectorStores.del(get(openaiStore).vectorStoreId);
+        if (get(openaiStore).fileId) await openai.files.del(get(openaiStore).fileId);
+        if (get(openaiStore).fileId) await openai.beta.threads.del(get(openaiStore).threadId);
 
         openaiStore.update(value => {
             value.assistantId = '';
             value.fileId = '';
             value.vectorStoreId = '';
+            value.threadId = '';
             return value;
         });
     } catch (error) {
@@ -177,7 +168,14 @@ export async function clearEverything() {
         }
         
         // todo delete threads
-        // const threads = await openai.beta.threads.list();
+        const threadID = get(openaiStore).threadId;
+        if (threadID) {
+            await openai.beta.threads.del(threadID);
+            openaiStore.update(value => {
+                value.threadId = '';
+                return value;
+            });
+        }
 
         let done = false;
 
@@ -210,4 +208,108 @@ export async function clearEverything() {
     } catch (error) {
         throw new Error(`Error clearing everything: ${error}`);
     }
+}
+
+const promptChaptersPlan = `Generate a lists all chapters of the book, including only the number and name of each chapter. The format should precisely follow these specifications:
+1. [Name]
+2. [Name]
+// Continue with additional chapters as necessary
+
+Ensure that every chapter of the book is represented, with the exact name as it appears in the book.
+`;
+
+export async function extractChapters(): Promise<Chapter[]> {
+    const openai = new OpenAI(
+        {
+            apiKey: get(openaiStore).apiKey,
+            dangerouslyAllowBrowser: true
+        }
+    );
+
+    let threadId = get(openaiStore).threadId;
+
+    try {
+        const thread = await openai.beta.threads.create();
+        threadId = thread.id;
+        
+        const message = await openai.beta.threads.messages.create(
+        thread.id,
+        {
+            role: "user",
+            content: promptChaptersPlan,
+        });
+
+        let run = await openai.beta.threads.runs.create(
+            thread.id,
+            { 
+                assistant_id: get(openaiStore).assistantId,
+                instructions: "Generate a list of chapters from the book.",
+            },                
+        );
+
+        while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
+            run = await openai.beta.threads.runs.retrieve(
+                run.thread_id,
+                run.id
+            );
+        }
+
+        const messages = await openai.beta.threads.messages.list(
+            run.thread_id,
+            {
+                limit: 1,
+                order: "desc",
+            },
+        );
+
+        if (messages.data.length === 0) {
+            throw new Error("Error extracting chapters: No data returned");
+        }
+
+        const chapter = messages.data[0];
+        let chaptersRaw = '';
+
+        chapter.content.forEach((content) => {
+            if (content.type === 'text') chaptersRaw += content.text.value + '\n';
+        });
+
+        return extractchaptersRaw(chaptersRaw);;
+    } catch (error) {
+        throw new Error(`Error creating assistant: ${error}`);
+    } finally {
+        if (threadId) await openai.beta.threads.del(threadId);
+    }
+}
+
+function extractchaptersRaw(chaptersRaw: string) : Chapter[] {
+    // clear chapters
+    let chapters: Chapter[] = [];
+
+    // find find where number 1 is
+    const start = chaptersRaw.indexOf('1.');
+
+    // get the chapters
+    const chaptersRawExtracted = chaptersRaw.substring(start, chaptersRaw.length);
+
+    // split the chapters
+    const chaptersArray = chaptersRawExtracted.split('\n');
+
+    // remove empty strings
+    const chaptersArrayFiltered = chaptersArray.filter((chapter) => chapter !== '');
+
+    // create chapter objects
+    for (let i = 0; i < chaptersArrayFiltered.length; i++) {
+        const chapter = chaptersArrayFiltered[i];
+        chapters.push(
+            {
+                id: i + 1,
+                name: chapter,
+                topics: [],
+                done: false,
+            },
+        );
+    }
+
+    return chapters;
 }

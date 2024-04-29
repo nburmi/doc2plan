@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	import { isValidApiKey, clearOpenAI, createAssistant, uploadFile } from '$lib/openai';
-	import {openaiStore} from '../stores/openai';
+	import { isValidApiKey, clearOpenAI, clearEverything, createAssistant, uploadFile } from '$lib/openai';
+	import { openaiStore } from '../stores/openai';
 	import { planStore } from '../stores/plan';
 	import { get } from 'svelte/store';
 
@@ -58,6 +58,10 @@
 
 		// show the button
 		data.createdOpenAI = false;
+	}
+
+	async function clearOpenAIEverything() {
+		await clearEverything();
 	}
 
 	async function createOpenAI(e: Event) {
@@ -200,9 +204,12 @@
             {/if}
         </ul>
 
-        <button class="btn variant-filled {data.createdOpenAI ? '': 'hidden'}" on:click={clear}>Clear</button>
+        <button class="btn variant-filled-error {data.createdOpenAI ? '': 'hidden'}" on:click={clear}>Clear</button>
 		<!-- button to create openAI  -->
 		<button class="btn variant-filled {data.canCreateOpenAI ? '': 'hidden'}" on:click={createOpenAI}>Create OpenAI</button>
+
+		<!-- button to clear everything -->
+		<button class="btn variant-filled-error" on:click={clearOpenAIEverything}>Clear everything</button>
 	{/if}
 
     <button class="btn variant-filled" disabled={data.locked} on:click={next}>Next</button>
