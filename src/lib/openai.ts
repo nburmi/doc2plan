@@ -313,3 +313,70 @@ function extractchaptersRaw(chaptersRaw: string) : Chapter[] {
 
     return chapters;
 }
+
+export async function extractKeyTopics(path: string) {
+    const promptChapterTopicsToCover = `Generate a numbered list of topics to cover in the chapter '${path}'. 
+            The list should include all major topics, subtopics, and key points that are covered in the chapter. 
+            The format should precisely follow these specifications:
+            1. [Topic 1]
+                1.1. [Subtopic 1]
+                1.1.1 [Key Point 1]
+                1.1.2 [Key Point 2]
+            2. [Topic 2]
+            // Continue with additional topics as necessary
+            Ensure that every topic in the chapter is represented, with the exact name as it appears in the chapter.`;
+
+    const openai = new OpenAI(
+        {
+            apiKey: get(openaiStore).apiKey,
+            dangerouslyAllowBrowser: true
+        }
+    );
+
+    let threadId = get(openaiStore).threadId;
+    try {
+        const thread = await openai.beta.threads.create();
+        threadId = thread.id;
+    
+        await openai.beta.threads.messages.create(
+            threadId,
+            {
+                role: "user",
+                content: promptChapterTopicsToCover,
+            });
+
+            let run = await openai.beta.threads.runs.create(
+                threadId,
+                { 
+                    assistant_id: get(openaiStore).assistantId,
+                    instructions: `You are helpfull assistant that helps to create learning plan based on '${path}' context.`,
+                },           
+            );
+        
+            while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
+                run = await openai.beta.threads.runs.retrieve(
+                    run.thread_id,
+                    run.id
+                );
+            }
+
+            const messages = await openai.beta.threads.messages.list(threadId, {limit: 1, order: "desc"});
+            if (messages.data.length === 0) {
+                throw new Error("Error extracting topics: No data returned");
+            }
+
+            const chapter = messages.data[0];
+            let keyTopics = '';
+            for (const content of chapter.content) {
+                if (content.type === 'text') keyTopics += content.text.value + '\n';
+            }
+
+            return keyTopics
+    } catch (error) {
+        throw new Error(`Error creating assistant: ${error}`);
+    } finally {
+        if (threadId) await openai.beta.threads.del(threadId);
+    }
+}
+

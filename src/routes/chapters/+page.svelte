@@ -48,10 +48,10 @@
                 store.chapters = extracted;
                 return store;
             });
-            loading = false;
         } catch (e) {
-            loading = false;
             console.error(e);
+        } finally {
+            loading = false;
         }
     };
 
