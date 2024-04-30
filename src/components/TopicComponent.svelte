@@ -1,7 +1,6 @@
 <script lang="ts">
     import { get } from 'svelte/store';
     import { openaiStore  } from '../stores/openai';
-    import { planStore } from '../stores/plan';
     import TopicComponent from './TopicComponent.svelte';
     import Quizes from './Quizes.svelte';
     import { createEventDispatcher } from 'svelte';
