@@ -11,6 +11,7 @@
     export let topicContent: string | undefined;
 
     let loading = false;
+    let show = true;
 
     const dispatch = createEventDispatcher();
     const addQuiz = () => {
@@ -57,6 +58,10 @@
             loading = false;
         }
     }
+
+    const hideShow = () => {
+        show = !show;
+    }
 </script>
 
 
@@ -73,9 +78,21 @@
             Generate quizes
         {/if}
     </button>
+
+    <!-- show/hide button -->
+    <button class="btn  variant-filled-tertiary" on:click={hideShow}>
+        {#if show}
+            Hide
+        {:else}
+            Show
+        {/if}
+    </button>
 </div>
 
-{#if quizes}
+
+
+
+{#if quizes && show}
     {#each quizes as quiz}
         <QuizComponent {quiz} on:deleteQuiz={handleDelete} on:updateQuiz={handleUpdate}/>
     {/each}

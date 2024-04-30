@@ -15,9 +15,7 @@
 
     let loading = false;
 
-    async function regenerate() {
-        console.log('regenerate');
-
+    async function generateContent() {
         loading = true;
         try {
             topic.content = await generateTopicContent(chapterName, topic.path)
@@ -119,11 +117,11 @@
     <!-- if with AI then show button regenerate -->
     {#if openAI}
         <div>
-            <button class="btn btn-sm variant-filled-secondary" on:click={regenerate} disabled={loading}>
+            <button class="btn btn-sm variant-filled-secondary" on:click={generateContent} disabled={loading}>
                 {#if loading}
                     <Fa icon={faSpinner} class="animate-spin"/>
                 {:else}
-                    Regenerate
+                    Generate content
                 {/if}
             </button>
         </div>
