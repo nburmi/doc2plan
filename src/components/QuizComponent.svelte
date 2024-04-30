@@ -30,12 +30,10 @@
     </label>
 
     <div class="flex">
-        <button class="btn btn-sm variant-filled-error" on:click={deleteQuiz}>
-            <Fa icon={faTrash} />
-        </button>
+        <div class="flex justify-end">
+            <button class="btn btn-sm variant-filled-error" on:click={deleteQuiz}>
+                <Fa icon={faTrash} />
+            </button>
+        </div>
     </div>
-
-    <!-- <button class="btn btn-sm variant-filled-error" on:click={deleteQuiz}>
-        <Fa icon={faTrash} />
-    </button> -->
 </div>

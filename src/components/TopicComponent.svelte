@@ -146,9 +146,11 @@
                 <AccordionItem>
                     <svelte:fragment slot="lead">{subtopic.title === '' ? 'NEW TOPIC' : subtopic.title}</svelte:fragment>
                     <svelte:fragment slot="summary">
-                        <button class="btn btn-sm variant-filled-error" on:click={deleteSub(subtopic.id)}>
-                            <Fa icon={faTrash} />
-                        </button>
+                        <div class="flex justify-end">
+                            <button class="btn btn-sm variant-filled-error" on:click={deleteSub(subtopic.id)}>
+                                <Fa icon={faTrash} />
+                            </button>    
+                        </div>
                     </svelte:fragment>
                     <svelte:fragment slot="content">
                         <TopicComponent chapterName={chapterName} topic={subtopic} on:deleteTopic={deleteSubtopic} on:updateTopic={updateSubtopic}/>

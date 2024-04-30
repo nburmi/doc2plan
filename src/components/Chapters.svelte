@@ -52,9 +52,11 @@
     <AccordionItem>
         <svelte:fragment slot="lead">{c.name === '' ? 'name is empty' : c.name}</svelte:fragment>
         <svelte:fragment slot="summary">
-            <button class="btn btn-sm variant-filled-error" on:click={deleteChapter(c.id)}>
-                <Fa icon={faTrash} />
-            </button>
+            <div class="flex justify-end">
+                <button class="btn btn-sm variant-filled-error" on:click={deleteChapter(c.id)}>
+                    <Fa icon={faTrash} />
+                </button>
+            </div>
         </svelte:fragment>
         <svelte:fragment slot="content">
             <Chapter chapter={c}></Chapter>
