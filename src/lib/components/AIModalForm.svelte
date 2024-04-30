@@ -8,6 +8,8 @@
 
 	import Fa from 'svelte-fa'
     import { faSpinner, faCheck, faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
+
+	import { extractChapters as aiExtractChapters } from '$lib/openai';
    
 
 	// Props
@@ -44,42 +46,41 @@
 		modalStore.close();
 	}
 
-	function extractChapters() {
-		// sleep 5 seconds
-		loadingChapter = true;
+	async function extractChapters() {
 		statusMessage = 'Extracting chapters';
 		state = status.InProgress;
 
-		setTimeout(() => {
-			statusMessage = 'Chapters extracted';
-			loadingChapter = false;
+		try {
+			await aiExtractChapters();
+			chapters = await aiExtractChapters();
 			state = status.Success;
-		}, 5000);
-	}
-
-	function extractTopics() {
-		// sleep 5 seconds
-		loadingTopics = true;
-		state = status.InProgress;
-		statusMessage = 'Extracting topics';
-
-		setTimeout(() => {
-			statusMessage = 'Topics extracted';
-			loadingTopics = false;
+			statusMessage = 'Chapters extracted';
+		} catch (error) {
+			statusMessage = 'Error extracting chapters';
 			state = status.Error;
-		}, 5000);
+		}
 	}
 
-	let loadingChapter = false;
-	let loadingTopics = false;
+	async function extractTopics() {
+		statusMessage = 'Extracting topics';
+		state = status.InProgress;
+
+		try {
+			state = status.Success;
+			statusMessage = 'Topics extracted';
+		} catch (error) {
+			statusMessage = 'Error extracting topics';
+			state = status.Error;
+		}
+	}
 
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
 	const cForm = 'p-4 space-y-4 ';
 
-	$: disableExtractChapter = loadingChapter || !formData.extractChapters;
-	$: disableExtractTopics = loadingTopics || !formData.extractTopics;
+	$: disableExtractChapter = state === status.InProgress || !formData.extractChapters;
+	$: disableExtractTopics = state === status.InProgress || !formData.extractTopics;
 
 	let statusMessage = '';
 	// enum for status
@@ -103,7 +104,7 @@
 			<div class="flex items-center space-x-2">
 				<!-- button -->
 				<button class="btn variant-filled-secondary [&>*]:pointer-events-none"  on:click={extractChapters} disabled={disableExtractChapter}>
-					{#if loadingChapter}
+					{#if state === status.InProgress}
 						<Fa icon={faSpinner} class="animate-spin" />
 					{:else}
 						Extract Chapters
@@ -139,7 +140,7 @@
 			<div class="flex items-center space-x-2">
 				<!-- button -->
 				<button class="btn variant-filled-secondary [&>*]:pointer-events-none"  on:click={extractTopics} disabled={disableExtractTopics}>
-					{#if loadingTopics}
+					{#if state === status.InProgress}
 						<Fa icon={faSpinner} class="animate-spin" />
 					{:else}
 						Extract Topics
@@ -157,11 +158,11 @@
 		<footer class="modal-footer {parent.regionFooter}">
 			{#if state !== status.Empty}
 				<div class="flex items-center space-x-2">
-					{#if state === status.Success}
+					{#if state === status.Success }
 						<Fa icon={faCheck} class="text-green-500" />
-					{:else if state === status.InProgress}
+					{:else if state === status.InProgress }
 						<Fa icon={faSpinner} class="animate-spin" />
-					{:else if state === status.Error}
+					{:else if state === status.Error }
 						<Fa icon={faCircleExclamation} class="text-red-500" />
 					{/if}
 					<p>{statusMessage}</p>
