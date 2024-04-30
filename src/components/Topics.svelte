@@ -5,7 +5,6 @@
     import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 
-
     export let topics: Topic[];
     export let chapter_id: number;
 
@@ -97,7 +96,7 @@
                     </button>
                 </svelte:fragment>
                 <svelte:fragment slot="content">
-                    <TopicComponent {topic} on:deleteTopic={handleDelete} on:updateTopic={handleUpdate}/>
+                    <TopicComponent topic={topic} chapter_id={chapter_id} on:deleteTopic={handleDelete} on:updateTopic={handleUpdate}/>
                 </svelte:fragment>
             </AccordionItem>
             {/each}

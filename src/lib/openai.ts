@@ -486,3 +486,61 @@ const parseNumberedList = (input: string): Topic[] => {
 
     return topics;
 };
+
+export async function generateTopicContent(chapter: string, path: string) : Promise<string> {
+    const prompt = `Teach me topic "${path}" from ${chapter}. Provide a detailed explanation of the topic.`;
+    console.log(prompt);
+
+    const openai = new OpenAI(
+        {
+            apiKey: get(openaiStore).apiKey,
+            dangerouslyAllowBrowser: true
+        }
+    );
+
+    let threadId = get(openaiStore).threadId;
+    try {
+        const thread = await openai.beta.threads.create();
+        threadId = thread.id;
+
+        await openai.beta.threads.messages.create(
+        threadId,
+        {
+            role: "user",
+            content: prompt,
+        });
+
+        let run = await openai.beta.threads.runs.create(
+            threadId,
+            { 
+                assistant_id: get(openaiStore).assistantId,
+                instructions: `You are helpfull assistant that helps to create learning plan based on '${chapter}' context.`,
+            },           
+        );
+
+        while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
+            run = await openai.beta.threads.runs.retrieve(
+                run.thread_id,
+                run.id
+            );
+        }
+
+        const messages = await openai.beta.threads.messages.list(threadId, {limit: 1, order: "desc"});
+        if (messages.data.length === 0) {
+            throw new Error("Error extracting topics: No data returned");
+        }
+
+        const topic = messages.data[0];
+        let content = '';
+        for (const c of topic.content) {
+            if (c.type === 'text') content += c.text.value + '\n';
+        }
+
+        return content;
+    } catch (error) {
+        throw new Error(`Error creating assistant: ${error}`);
+    } finally {
+        if (threadId) await openai.beta.threads.del(threadId);
+    }
+}

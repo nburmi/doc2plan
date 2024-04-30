@@ -1,18 +1,35 @@
 <script lang="ts">
     import { get } from 'svelte/store';
     import { openaiStore  } from '../stores/openai';
+    import { planStore } from '../stores/plan';
     import TopicComponent from './TopicComponent.svelte';
     import Quizes from './Quizes.svelte';
     import { createEventDispatcher } from 'svelte';
     import { Fa } from 'svelte-fa';
-    import { faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+    import { faTrash, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+    import { generateTopicContent } from '$lib/openai';
 
     export let topic: Topic;
+    export let chapter_id: number;
 
-    const regenerate = () => {
-        // regenerate content
+    let loading = false;
+
+    async function regenerate() {
         console.log('regenerate');
+
+        let chapterName = get(planStore).chapters.find((c) => c.id === chapter_id)?.name;
+        if (!chapterName) chapterName = '';
+
+        loading = true;
+        try {
+            topic.content = await generateTopicContent(chapterName, topic.path)
+            updateTopic();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            loading = false;
+        }
     }
 
     const addSubtopic = () => {
@@ -105,7 +122,13 @@
     <!-- if with AI then show button regenerate -->
     {#if openAI}
         <div>
-            <button class="btn btn-sm variant-filled-secondary" on:click={regenerate}>Regenerate</button>
+            <button class="btn btn-sm variant-filled-secondary" on:click={regenerate} disabled={loading}>
+                {#if loading}
+                    <Fa icon={faSpinner} class="animate-spin"/>
+                {:else}
+                    Regenerate
+                {/if}
+            </button>
         </div>
     {/if}
 
@@ -131,7 +154,7 @@
                         </button>
                     </svelte:fragment>
                     <svelte:fragment slot="content">
-                        <TopicComponent topic={subtopic} on:deleteTopic={deleteSubtopic} on:updateTopic={updateSubtopic}/>
+                        <TopicComponent chapter_id={chapter_id} topic={subtopic} on:deleteTopic={deleteSubtopic} on:updateTopic={updateSubtopic}/>
                     </svelte:fragment>
                 </AccordionItem>
             {/each}

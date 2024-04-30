@@ -8,3 +8,4 @@ add note that AI is not perfect and makes mistakes.
 if quizes is undefined show add quiz button.
 if subttopics is undefined show add subtopic button.
 when addind subtopic set path.
+Create topics "are you sure this action will recreate all topics and quizes?"
