@@ -9,6 +9,26 @@
     import { popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
     import { extractChapters as aiExtractChapters } from '$lib/openai';
+    import { initializeStores, Modal } from '@skeletonlabs/skeleton';
+    import AIModalForm from '$lib/components/AIModalForm.svelte';
+    import type { ModalSettings, ModalComponent } from '@skeletonlabs/skeleton';
+    import { getModalStore } from '@skeletonlabs/skeleton';
+
+
+    initializeStores();
+    const modalStore = getModalStore(); 
+
+    function modalComponentForm(): void {
+        const c: ModalComponent = { ref: AIModalForm };
+        const modal: ModalSettings = {
+            type: 'component',
+            component: c,
+            title: 'AI Content generator',
+            body: 'Complete the form to generate content.',
+            response: (r) => console.log('response:', r)
+        };
+        modalStore.trigger(modal);
+    }
 
 
     $: openAI = get(openaiStore).assistantId !== '';
@@ -81,6 +101,9 @@
             <p>AI: extract chapters</p>
             <div class="arrow variant-filled-secondary" />
         </div>
+
+        <button class="btn btn-sm variant-filled-secondary" on:click={modalComponentForm}>AI</button>
+        <Modal />
     {/if}
 </div>
 
@@ -96,7 +119,7 @@
             </div>
         </svelte:fragment>
         <svelte:fragment slot="content">
-            <Chapter chapter={c}></Chapter>
+            <div class="border border-surface-500 p-4 space-y-4 rounded-container-token"><Chapter chapter={c}></Chapter></div>
         </svelte:fragment>
     </AccordionItem>
     {/each}
