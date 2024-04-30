@@ -106,9 +106,6 @@
         <input class="input" type="text" placeholder="Title" bind:value={topic.title} on:change={updateTopic} required/>
     </label>
 
-    <!-- done -->
-    <!-- <input type="checkbox" bind:checked={topic.done} on:change={updateTopic} class="checkbox"/> -->
-
     <!-- content -->
     <label class="label">
         <textarea class="textarea" placeholder="Content" bind:value={topic.content} required on:change={updateTopic}></textarea>

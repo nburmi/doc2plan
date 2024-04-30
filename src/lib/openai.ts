@@ -471,13 +471,10 @@ const parseNumberedList = (input: string): Topic[] => {
             topic.parent_id = parent.id;
 
             let path = parent.path;
-            if (path) {
-                path += ' > ';
-            }
-
-            topic.path = path + parent.title + ' > ' + topic.title;
+            topic.path = path + ' > ' + topic.title;
             parent.children.push(topic);
         } else {
+            topic.path = topic.title;
             topics.push(topic);  // Add as a root topic if stack is empty
         }
 

@@ -81,7 +81,6 @@
 </script>
 
 <div class="flex flex-col items-start min-w-full">
-    <!-- button add topic -->
     <div class="flex">
         <h2 class="text-xl font-bold">Topics:</h2>
 

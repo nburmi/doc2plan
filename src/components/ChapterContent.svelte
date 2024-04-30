@@ -38,8 +38,6 @@
     }
 </script>
 
-<!-- <header class="card-header flex justify-center items-center">
-</header> -->
 <section class="">
     {#if get(openaiStore).assistantId !== ''}
         <textarea bind:value={chapter.keyTopics} class="textarea" placeholder="Key topics"></textarea>
