@@ -9,6 +9,7 @@ declare global {
         name: string;
         topics: Topic[];
         done: boolean;
+        keyTopics?: string;
     }
     
     type Topic = {
@@ -16,7 +17,7 @@ declare global {
         title: string;
         path: string;
         children?: Topic[];
-        parent ?: Topic;
+        parent_id ?: number;
         content?: string;
         quizes?: Quiz[];
         done: boolean;

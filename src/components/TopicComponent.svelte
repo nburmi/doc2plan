@@ -40,10 +40,6 @@
     }
 
     const dispatch = createEventDispatcher();
-    const deleteTopic = () => {
-        dispatch('deleteTopic', {id: topic.id});
-    }
-
     const updateTopic = () => {
         dispatch('updateTopic', {id: topic.id, topic});
     }
@@ -114,23 +110,21 @@
     {/if}
 
     <!-- quizes -->
-    <h3>Quizes</h3>
-    {#if topic.quizes}
-        <Quizes quizes={topic.quizes} on:updateQuizes={handleUpdateQuizes}/>
-    {/if}
+    <h3>Quizes:</h3>
+    <Quizes quizes={topic.quizes} on:updateQuizes={handleUpdateQuizes}/>
+
+    <h3>Subtopics: </h3>
+    <div class="flex">
+        <button class="btn btn-sm variant-filled" on:click={addSubtopic}>
+            <Fa icon={faPlus} />
+        </button>
+    </div>
 
     {#if topic.children}
-        <h3>Subtopics: </h3>
-        <div class="flex">
-            <button class="btn btn-sm variant-filled" on:click={addSubtopic}>
-                <Fa icon={faPlus} />
-            </button>
-        </div>
-
         <Accordion>
             {#each topic.children as subtopic}
                 <AccordionItem>
-                    <svelte:fragment slot="lead">{subtopic.title === '' ? 'title is empty' : subtopic.title}</svelte:fragment>
+                    <svelte:fragment slot="lead">{subtopic.title === '' ? 'NEW TOPIC' : subtopic.title}</svelte:fragment>
                     <svelte:fragment slot="summary">
                         <button class="btn btn-sm variant-filled-error" on:click={deleteSub(subtopic.id)}>
                             <Fa icon={faTrash} />

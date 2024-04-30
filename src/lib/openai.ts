@@ -168,14 +168,14 @@ export async function clearEverything() {
         }
         
         // todo delete threads
-        const threadID = get(openaiStore).threadId;
-        if (threadID) {
-            await openai.beta.threads.del(threadID);
-            openaiStore.update(value => {
-                value.threadId = '';
-                return value;
-            });
-        }
+        // const threadID = get(openaiStore).threadId;
+        // if (threadID) {
+        //     await openai.beta.threads.del(threadID);
+        //     openaiStore.update(value => {
+        //         value.threadId = '';
+        //         return value;
+        //     });
+        // }
 
         let done = false;
 
@@ -380,3 +380,109 @@ export async function extractKeyTopics(path: string) {
     }
 }
 
+// recursive function to find parent topic by id with children
+function findParentTopic(topics: Topic[], parent_id: number): Topic | undefined {
+    for (const topic of topics) {
+        if (topic.id === parent_id) {
+            return topic;
+        }
+
+        if (topic.children) {
+            const parent = findParentTopic(topic.children, parent_id);
+            if (parent) {
+                return parent;
+            }
+        }
+    }
+
+    return undefined;
+}
+
+export function parseKeyTopics(keyTopics: string): Topic[] {
+    const topics = parseNumberedList(keyTopics);
+    console.log(topics);
+
+    // const format = (t: Topic) => {
+    //     if (!t) {
+    //         return '';
+    //     }
+
+    //     if (!t.parent_id) {
+    //         return `${t.title}`;
+    //     }
+
+    //     let stack = [];
+    //     let parent: number | undefined = t.parent_id;
+    //     while (parent) {
+    //         let p = findParentTopic(topics, parent);
+    //         if (!p) {
+    //             break;
+    //         }
+
+    //         stack.push(p.title);
+    //         parent = p.parent_id;
+    //     }
+
+    //     return `${stack.reverse().join(' > ')} > ${t.title}`;
+    // }
+
+    // go through all topics and printTopic
+    for (let i = 0; i < topics.length; i++) {
+        const topic = topics[i];
+        // topic.path = format(topic);
+        topics[i] = topic;
+    }
+
+    return topics;
+}
+
+
+const parseNumberedList = (input: string): Topic[] => {
+    const lines = input.split('\n');
+    const topics: Topic[] = [];
+    const stack: [Topic, number][] = [];  // To hold topics and their levels
+
+    lines.forEach((line, index) => {
+        const trimmedLine = line.trim();
+
+        // skip empty lines
+        // skip first line if it does not start with 1.
+        // skip last line if does not contain number 
+        if (!trimmedLine 
+        || (index === 0 && !trimmedLine.startsWith('1.')) 
+        || index === lines.length - 1 && !trimmedLine.match(/\d/)) {
+            return;
+        }
+
+        const level = line.length - trimmedLine.length;  // Determine depth by counting leading spaces
+        const title = trimmedLine.replace(/^[\d.]+\s*/, '');  // Remove the numbering
+        const topic: Topic = { id: index, title: title, path: "", done: false};
+
+        // Find the correct place to add this topic in the hierarchy
+        while (stack.length > 0 && stack[stack.length - 1][1] >= level) {
+            stack.pop();  // Pop from stack until we find the parent level
+        }
+
+        if (stack.length > 0) {
+            const parent = stack[stack.length - 1][0];
+            if (!parent.children) {
+                parent.children = [];
+            }
+            topic.parent_id = parent.id;
+
+            let path = parent.path;
+            if (path) {
+                path += ' > ';
+            }
+
+            topic.path = path + parent.title + ' > ' + topic.title;
+            parent.children.push(topic);
+        } else {
+            topics.push(topic);  // Add as a root topic if stack is empty
+        }
+
+        stack.push([topic, level]);  // Push the current topic with its level to the stack
+    });
+
+    return topics;
+};

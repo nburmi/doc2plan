@@ -136,7 +136,6 @@
 		data.canCreateOpenAI = !data.tokenInvalid && files != null && !data.createdOpenAI;
     }
 </script>
-
 	<label class="label">
 		<span>Plan name</span>
         <input type="text" placeholder="Enter your plan name" bind:value={data.planName} class="input variant-form-material" />

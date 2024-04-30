@@ -14,6 +14,21 @@
             return store;
         });
     };
+
+    // update topics
+    function updateTopics() {
+        planStore.update((store) => {
+            const index = store.chapters.findIndex((c) => c.id === chapter.id);
+            if (index === -1) return store;
+            store.chapters[index].topics = chapter.topics;
+            return store;
+        });
+    }
+
+    const handleUpdateChapterTopics = (event: CustomEvent) => {
+        chapter.topics = event.detail.topics;
+        updateTopics();
+    };
 </script>
 
 <div class="flex">
@@ -22,4 +37,4 @@
     </label>
 </div>
 
-<ChapterContent chapter={chapter}></ChapterContent>
+<ChapterContent chapter={chapter} on:updateTopics={handleUpdateChapterTopics}></ChapterContent>

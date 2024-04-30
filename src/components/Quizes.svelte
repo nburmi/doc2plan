@@ -4,7 +4,7 @@
     import { Fa } from 'svelte-fa';
     import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
-    export let quizes: Quiz[];
+    export let quizes: Quiz[] | undefined;
     const dispatch = createEventDispatcher();
 
 
@@ -25,11 +25,15 @@
     }
 
     const handleDelete = (event: CustomEvent) => {
+        if (!quizes) return;
+
         quizes = quizes.filter((q) => q.id !== event.detail.id);
         dispatch('updateQuizes', {quizes});
     }
 
     const handleUpdate = (event: CustomEvent) => {
+        if (!quizes) return;
+
         const index = quizes.findIndex((q) => q.id === event.detail.id);
         if (index === -1) return;
 
@@ -52,9 +56,8 @@
     <button class="btn btn-sm variant-filled-secondary" on:click={generateQuizes}>AI: generate quizes</button>
 </div>
 
-
-{#each quizes as quiz}
-<div class="flex">
-    <QuizComponent {quiz} on:deleteQuiz={handleDelete} on:updateQuiz={handleUpdate}/>
-</div>
-{/each}
+{#if quizes}
+    {#each quizes as quiz}
+        <QuizComponent {quiz} on:deleteQuiz={handleDelete} on:updateQuiz={handleUpdate}/>
+    {/each}
+{/if}

@@ -90,7 +90,7 @@
         <Accordion>
             {#each topics as topic}
             <AccordionItem>
-                <svelte:fragment slot="lead">{topic.title === '' ? 'title is empty' : topic.title}</svelte:fragment>
+                <svelte:fragment slot="lead">{topic.title === '' ? 'NEW TOPIC' : topic.title}</svelte:fragment>
                 <svelte:fragment slot="summary">
                     <button class="btn btn-sm variant-filled-error" on:click={deleteTopic(topic.id)}>
                         <Fa icon={faTrash} />
