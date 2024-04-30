@@ -32,8 +32,8 @@
 </script>
 
 <div class="flex">
-    <label class="label">
-        <input class="input" type="text" placeholder="Name of the chapter" bind:value={chapter.name} on:change={updateChapter} required/>
+    <label class="label w-full">
+        <input class="input w-full" type="text" placeholder="Name of the chapter" bind:value={chapter.name} on:change={updateChapter} required/>
     </label>
 </div>
 
