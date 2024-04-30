@@ -2,12 +2,17 @@
     import QuizComponent from './QuizComponent.svelte';
     import { createEventDispatcher } from 'svelte';
     import { Fa } from 'svelte-fa';
-    import { faPlus } from '@fortawesome/free-solid-svg-icons';
+    import { faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
+    import { generateQuizes as aiGenerateQuizes } from '$lib/openai';
 
     export let quizes: Quiz[] | undefined;
+    export let chapterName: string;
+    export let topicPath: string;
+    export let topicContent: string | undefined;
+
+    let loading = false;
+
     const dispatch = createEventDispatcher();
-
-
     const addQuiz = () => {
         if (!quizes) quizes = [];
 
@@ -41,19 +46,33 @@
         dispatch('updateQuizes', {quizes});
     }
 
-    const generateQuizes = () => {
-        console.log('generating quizes');
+    async function generateQuizes () {
+        loading = true;
+        try {
+            quizes = await aiGenerateQuizes(chapterName, topicPath, topicContent || '');
+            dispatch('updateQuizes', {quizes});
+        } catch (error) {
+            console.error(error);
+        } finally {
+            loading = false;
+        }
     }
 </script>
 
 
 <!-- add quiz button -->
 <div class="flex">
-    <button class="btn btn-sm variant-filled" on:click={addQuiz}>
+    <button class="btn btn-sm variant-filled" on:click={addQuiz} disabled={loading}>
         <Fa icon={faPlus} />
     </button>
     <!-- button AI generate -->
-    <button class="btn btn-sm variant-filled-secondary" on:click={generateQuizes}>AI: generate quizes</button>
+    <button class="btn btn-sm variant-filled-secondary" on:click={generateQuizes} disabled={loading}>
+        {#if loading}
+            <Fa icon={faSpinner} class="animate-spin"/>
+        {:else}
+            Generate quizes
+        {/if}
+    </button>
 </div>
 
 {#if quizes}

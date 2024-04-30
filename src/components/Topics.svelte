@@ -1,5 +1,6 @@
 <script lang="ts">
     import { planStore } from '../stores/plan';
+    import { get } from 'svelte/store';
     import TopicComponent from './TopicComponent.svelte';
     import { Fa } from 'svelte-fa';
     import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -54,6 +55,11 @@
         }
     }
 
+    const getChapterName = () => {
+        const chapter = get(planStore).chapters.find((c) => c.id === chapter_id);
+        return chapter ? chapter.name : '';
+    }
+
     const handleUpdate = (event: CustomEvent) => {        
         const id = Number(event.detail.id);
         const topic = event.detail.topic;
@@ -96,7 +102,7 @@
                     </button>
                 </svelte:fragment>
                 <svelte:fragment slot="content">
-                    <TopicComponent topic={topic} chapter_id={chapter_id} on:deleteTopic={handleDelete} on:updateTopic={handleUpdate}/>
+                    <TopicComponent topic={topic} chapterName={getChapterName()} on:deleteTopic={handleDelete} on:updateTopic={handleUpdate}/>
                 </svelte:fragment>
             </AccordionItem>
             {/each}

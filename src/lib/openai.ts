@@ -4,7 +4,7 @@ import { get } from 'svelte/store'
 
 
 // return true if the api key is valid
-export async function isValidApiKey(apikey: string) : Promise<boolean> {
+export async function isValidApiKey(apikey: string): Promise<boolean> {
     if (!apikey) {
         return false;
     }
@@ -60,7 +60,7 @@ export async function createAssistant() {
             instructions: params.instructions,
             name: params.name,
             temperature: params.temperature,
-            tools: [{type: 'file_search'}],
+            tools: [{ type: 'file_search' }],
             tool_resources: {
                 file_search: {
                     vector_store_ids: [get(openaiStore).vectorStoreId],
@@ -103,7 +103,7 @@ export async function uploadFile(file: File) {
         // Create a vector store including our two files.
         let vectorStore = await openai.beta.vectorStores.create({
             name: "ihaveaplan",
-            file_ids: [response.id],    
+            file_ids: [response.id],
             expires_after: {
                 anchor: 'last_active_at',
                 days: 1,
@@ -156,7 +156,7 @@ export async function clearEverything() {
         }
     );
 
-    try{
+    try {
         const assistants = await openai.beta.assistants.list();
         for (const assistant of assistants.data) {
             await openai.beta.assistants.del(assistant.id);
@@ -166,7 +166,7 @@ export async function clearEverything() {
         for (const file of files.data) {
             await openai.files.del(file.id);
         }
-        
+
         // todo delete threads
         // const threadID = get(openaiStore).threadId;
         // if (threadID) {
@@ -231,20 +231,20 @@ export async function extractChapters(): Promise<Chapter[]> {
     try {
         const thread = await openai.beta.threads.create();
         threadId = thread.id;
-        
+
         const message = await openai.beta.threads.messages.create(
-        thread.id,
-        {
-            role: "user",
-            content: promptChaptersPlan,
-        });
+            thread.id,
+            {
+                role: "user",
+                content: promptChaptersPlan,
+            });
 
         let run = await openai.beta.threads.runs.create(
             thread.id,
-            { 
+            {
                 assistant_id: get(openaiStore).assistantId,
                 instructions: "Generate a list of chapters from the book.",
-            },                
+            },
         );
 
         while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
@@ -282,7 +282,7 @@ export async function extractChapters(): Promise<Chapter[]> {
     }
 }
 
-function extractchaptersRaw(chaptersRaw: string) : Chapter[] {
+function extractchaptersRaw(chaptersRaw: string): Chapter[] {
     // clear chapters
     let chapters: Chapter[] = [];
 
@@ -337,7 +337,7 @@ export async function extractKeyTopics(path: string) {
     try {
         const thread = await openai.beta.threads.create();
         threadId = thread.id;
-    
+
         await openai.beta.threads.messages.create(
             threadId,
             {
@@ -345,34 +345,34 @@ export async function extractKeyTopics(path: string) {
                 content: promptChapterTopicsToCover,
             });
 
-            let run = await openai.beta.threads.runs.create(
-                threadId,
-                { 
-                    assistant_id: get(openaiStore).assistantId,
-                    instructions: `You are helpfull assistant that helps to create learning plan based on '${path}' context.`,
-                },           
+        let run = await openai.beta.threads.runs.create(
+            threadId,
+            {
+                assistant_id: get(openaiStore).assistantId,
+                instructions: `You are helpfull assistant that helps to create learning plan based on '${path}' context.`,
+            },
+        );
+
+        while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
+            run = await openai.beta.threads.runs.retrieve(
+                run.thread_id,
+                run.id
             );
-        
-            while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
-                run = await openai.beta.threads.runs.retrieve(
-                    run.thread_id,
-                    run.id
-                );
-            }
+        }
 
-            const messages = await openai.beta.threads.messages.list(threadId, {limit: 1, order: "desc"});
-            if (messages.data.length === 0) {
-                throw new Error("Error extracting topics: No data returned");
-            }
+        const messages = await openai.beta.threads.messages.list(threadId, { limit: 1, order: "desc" });
+        if (messages.data.length === 0) {
+            throw new Error("Error extracting topics: No data returned");
+        }
 
-            const chapter = messages.data[0];
-            let keyTopics = '';
-            for (const content of chapter.content) {
-                if (content.type === 'text') keyTopics += content.text.value + '\n';
-            }
+        const chapter = messages.data[0];
+        let keyTopics = '';
+        for (const content of chapter.content) {
+            if (content.type === 'text') keyTopics += content.text.value + '\n';
+        }
 
-            return keyTopics
+        return keyTopics
     } catch (error) {
         throw new Error(`Error creating assistant: ${error}`);
     } finally {
@@ -448,15 +448,15 @@ const parseNumberedList = (input: string): Topic[] => {
         // skip empty lines
         // skip first line if it does not start with 1.
         // skip last line if does not contain number 
-        if (!trimmedLine 
-        || (index === 0 && !trimmedLine.startsWith('1.')) 
-        || index === lines.length - 1 && !trimmedLine.match(/\d/)) {
+        if (!trimmedLine
+            || (index === 0 && !trimmedLine.startsWith('1.'))
+            || index === lines.length - 1 && !trimmedLine.match(/\d/)) {
             return;
         }
 
         const level = line.length - trimmedLine.length;  // Determine depth by counting leading spaces
         const title = trimmedLine.replace(/^[\d.]+\s*/, '');  // Remove the numbering
-        const topic: Topic = { id: index, title: title, path: "", done: false};
+        const topic: Topic = { id: index, title: title, path: "", done: false };
 
         // Find the correct place to add this topic in the hierarchy
         while (stack.length > 0 && stack[stack.length - 1][1] >= level) {
@@ -487,7 +487,7 @@ const parseNumberedList = (input: string): Topic[] => {
     return topics;
 };
 
-export async function generateTopicContent(chapter: string, path: string) : Promise<string> {
+export async function generateTopicContent(chapter: string, path: string): Promise<string> {
     const prompt = `Teach me topic "${path}" from ${chapter}. Provide a detailed explanation of the topic.`;
     console.log(prompt);
 
@@ -504,18 +504,18 @@ export async function generateTopicContent(chapter: string, path: string) : Prom
         threadId = thread.id;
 
         await openai.beta.threads.messages.create(
-        threadId,
-        {
-            role: "user",
-            content: prompt,
-        });
+            threadId,
+            {
+                role: "user",
+                content: prompt,
+            });
 
         let run = await openai.beta.threads.runs.create(
             threadId,
-            { 
+            {
                 assistant_id: get(openaiStore).assistantId,
                 instructions: `You are helpfull assistant that helps to create learning plan based on '${chapter}' context.`,
-            },           
+            },
         );
 
         while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
@@ -526,7 +526,7 @@ export async function generateTopicContent(chapter: string, path: string) : Prom
             );
         }
 
-        const messages = await openai.beta.threads.messages.list(threadId, {limit: 1, order: "desc"});
+        const messages = await openai.beta.threads.messages.list(threadId, { limit: 1, order: "desc" });
         if (messages.data.length === 0) {
             throw new Error("Error extracting topics: No data returned");
         }
@@ -543,4 +543,115 @@ export async function generateTopicContent(chapter: string, path: string) : Prom
     } finally {
         if (threadId) await openai.beta.threads.del(threadId);
     }
+}
+
+export async function generateQuizes(chapter: string, path: string, content: string): Promise<Quiz[]> {
+    const prompt = `Generate a list of questions and answers for the topic "${path}" from ${chapter} based on the following content: "${content}"
+    Based on the provided content, create a set of questions and answers that test the reader's understanding of the topic. 
+    Format the questions and answers in the following way:
+    Question: [Question 1]
+    Answer: [Answer 1]
+    Question: [Question 2]
+    Answer: [Answer 2]
+    // Continue with additional questions and answers as necessary`;
+
+    console.log(prompt);
+
+    const openai = new OpenAI(
+        {
+            apiKey: get(openaiStore).apiKey,
+            dangerouslyAllowBrowser: true
+        }
+    );
+
+    let threadId = get(openaiStore).threadId;
+    try {
+        const thread = await openai.beta.threads.create();
+        threadId = thread.id;
+
+        await openai.beta.threads.messages.create(
+            threadId,
+            {
+                role: "user",
+                content: prompt,
+            });
+
+        let run = await openai.beta.threads.runs.create(
+            threadId,
+            {
+                assistant_id: get(openaiStore).assistantId,
+                // instruction for particular chapter, topic and content
+                instructions: `You are helpfull assistant that helps to create learning plan based on '${chapter}' context.`,
+            },
+        );
+
+        while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
+            run = await openai.beta.threads.runs.retrieve(
+                run.thread_id,
+                run.id
+            );
+        }
+
+        const messages = await openai.beta.threads.messages.list(threadId, { limit: 1, order: "desc" });
+        if (messages.data.length === 0) {
+            throw new Error("Error extracting topics: No data returned");
+        }
+
+        const quiz = messages.data[0];
+        let questions = '';
+        for (const c of quiz.content) {
+            if (c.type === 'text') questions += c.text.value + '\n';
+        }
+
+        return parseQuestions(questions);
+    } catch (error) {
+        throw new Error(`Error creating assistant: ${error}`);
+    } finally {
+        if (threadId) await openai.beta.threads.del(threadId);
+    }
+}
+
+function parseQuestions(questions: string): Quiz[] {
+    const lines = questions.split('\n');
+    const quizes: Quiz[] = [];
+    let question = '';
+    let answer = '';
+    let isQuestion = true;
+
+    for (const line of lines) {
+        if (line.startsWith('Question:')) {
+            if (question) {
+                quizes.push({
+                    id: quizes.length + 1,
+                    question: question,
+                    answer: answer,
+                    done: false,
+                });
+            }
+
+            question = line.replace('Question:', '').trim();
+            isQuestion = true;
+        } else if (line.startsWith('Answer:')) {
+            answer = line.replace('Answer:', '').trim();
+            isQuestion = false;
+        } else {
+            if (isQuestion) {
+                question += line;
+            } else {
+                answer += line;
+            }
+        }
+    }
+
+    if (question) {
+        quizes.push({
+            id: quizes.length + 1,
+            question: question,
+            answer: answer,
+            done: false,
+        });
+    }
+
+    return quizes;
 }

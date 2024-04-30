@@ -16,16 +16,26 @@
     }
 </script>
 
-<div class="flex">
-    <label class="label">
-        <input class="input" type="text" placeholder="Question" bind:value={quiz.question} on:change={updateQuiz}  required/>
+<div class="flex flex-col">
+    <!-- textarea with label -->
+    <label class="label" for="question">
+        Question
+        <textarea id="question" class="textarea" placeholder="Question" bind:value={quiz.question} on:change={updateQuiz} required></textarea>
     </label>
 
-    <label class="label">
-        <input class="input" type="text" placeholder="Answer" bind:value={quiz.answer} on:change={updateQuiz} required/>
+    <!-- textarea with label -->
+    <label class="label" for="answer">
+        Answer
+        <textarea class="textarea" placeholder="Answer" bind:value={quiz.answer} on:change={updateQuiz} required></textarea>
     </label>
 
-    <button class="btn btn-sm variant-filled-error" on:click={deleteQuiz}>
+    <div class="flex">
+        <button class="btn btn-sm variant-filled-error" on:click={deleteQuiz}>
+            <Fa icon={faTrash} />
+        </button>
+    </div>
+
+    <!-- <button class="btn btn-sm variant-filled-error" on:click={deleteQuiz}>
         <Fa icon={faTrash} />
-    </button>
+    </button> -->
 </div>

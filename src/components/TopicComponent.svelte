@@ -11,15 +11,12 @@
     import { generateTopicContent } from '$lib/openai';
 
     export let topic: Topic;
-    export let chapter_id: number;
+    export let chapterName: string;
 
     let loading = false;
 
     async function regenerate() {
         console.log('regenerate');
-
-        let chapterName = get(planStore).chapters.find((c) => c.id === chapter_id)?.name;
-        if (!chapterName) chapterName = '';
 
         loading = true;
         try {
@@ -134,7 +131,7 @@
 
     <!-- quizes -->
     <h3>Quizes:</h3>
-    <Quizes quizes={topic.quizes} on:updateQuizes={handleUpdateQuizes}/>
+    <Quizes topicContent={topic.content} topicPath={topic.path} chapterName={chapterName} quizes={topic.quizes} on:updateQuizes={handleUpdateQuizes}/>
 
     <h3>Subtopics: </h3>
     <div class="flex">
@@ -154,7 +151,7 @@
                         </button>
                     </svelte:fragment>
                     <svelte:fragment slot="content">
-                        <TopicComponent chapter_id={chapter_id} topic={subtopic} on:deleteTopic={deleteSubtopic} on:updateTopic={updateSubtopic}/>
+                        <TopicComponent chapterName={chapterName} topic={subtopic} on:deleteTopic={deleteSubtopic} on:updateTopic={updateSubtopic}/>
                     </svelte:fragment>
                 </AccordionItem>
             {/each}
