@@ -400,7 +400,7 @@ function findParentTopic(topics: Topic[], parent_id: number): Topic | undefined 
 
 export function parseKeyTopics(keyTopics: string): Topic[] {
     const topics = parseNumberedList(keyTopics);
-    console.log(topics);
+    // console.log(topics);
 
     // const format = (t: Topic) => {
     //     if (!t) {
@@ -427,11 +427,11 @@ export function parseKeyTopics(keyTopics: string): Topic[] {
     // }
 
     // go through all topics and printTopic
-    for (let i = 0; i < topics.length; i++) {
-        const topic = topics[i];
-        // topic.path = format(topic);
-        topics[i] = topic;
-    }
+    // for (let i = 0; i < topics.length; i++) {
+    //     const topic = topics[i];
+    //     // topic.path = format(topic);
+    //     topics[i] = topic;
+    // }
 
     return topics;
 }
@@ -495,7 +495,7 @@ export async function generateTopicContent(chapter: string, path: string): Promi
         }
     );
 
-    let threadId = get(openaiStore).threadId;
+    let threadId = '';
     try {
         const thread = await openai.beta.threads.create();
         threadId = thread.id;
