@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { openaiStore } from '../../stores/openai';
-    import { planStore } from '../../stores/plan';
+    import { planStore } from '../../../stores/plan';
     import { get } from 'svelte/store';
 	import { clearOpenAI } from '$lib/openai';
     import { clearPlanStore } from '$lib/plan';

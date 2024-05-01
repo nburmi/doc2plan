@@ -18,6 +18,13 @@
 					<span class="bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">ihaveaplan</span>
 				</h3>
 			</svelte:fragment>
+			<svelte:fragment slot="default">
+				<div class="flex items-center space-x-4">
+					<a href="/creator" class="btn variant-soft">Creator</a>
+					<a href="/viewer" class="btn variant-soft">Viewer</a>
+					<a href="/settings" class="btn variant-soft">Settings</a>
+				</div>
+			</svelte:fragment>
 			<svelte:fragment slot="trail">
 				<LightSwitch />
 			</svelte:fragment>

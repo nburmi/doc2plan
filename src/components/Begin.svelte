@@ -29,8 +29,9 @@
 			store.assistantId = data.createdOpenAI ? store.assistantId : '';
 			return store;
 		});
-		window.location.href = '/chapters';
+		window.location.href = '/creator/chapters';
 	};
+
 
 	// function which changes text in button to loading with dots animation
 	function loadingButton(e: Event, text: string = 'Loading') {
@@ -87,24 +88,19 @@
 		data.createdOpenAI = true;
 	}
 
-	function validateToken() {
+	async function validateToken() {
 		if (data.token.length < 10) {
 			data.errorMsg = 'Token is too short';
 			return;
 		}
 
 		data.tokenInvalid = true;
-		isValidApiKey(data.token).then((res) => {
-			if (res) {
-				console.log('API key is valid');
-				data.tokenInvalid = false;
-			} else {
-				console.log('API key is invalid');
-			}
-		}).catch((err) => {
+		try {
+			await isValidApiKey(data.token);
+			data.tokenInvalid = false;
+		} catch (err: any) {
 			data.errorMsg = err;
-			console.log('API key is invalid');
-		});
+		}
 	}
 
     function readableFileSize(bytes: number): string {
@@ -121,7 +117,7 @@
         if (data.planName.length < 3) {
             data.locked = true;
 			data.errorMsg = 'Plan name is too short';
-        } else if (data.withAI && ((data.tokenInvalid || !files) || !data.createdOpenAI)) {
+        } else if (data.withAI && ((data.tokenInvalid || (!files && !data.createdOpenAI)) || !data.createdOpenAI)) {
             data.locked = true;
 			if (data.tokenInvalid) {
 				data.errorMsg = 'Token is invalid';
@@ -137,10 +133,8 @@
 		data.canCreateOpenAI = !data.tokenInvalid && files != null && !data.createdOpenAI;
     }
 
-	// if open AI is already created, redirect to chapters
-	if (get(openaiStore).assistantId !== '' && !data.tokenInvalid) {
-		goto('/chapters');
-	}
+	$: data.createdOpenAI = get(openaiStore).assistantId !== '';
+
 </script>
 	<label class="label">
 		<span>Plan name</span>
@@ -214,8 +208,12 @@
 		<button class="btn variant-filled {data.canCreateOpenAI ? '': 'hidden'}" on:click={createOpenAI}>Create OpenAI</button>
 
 		<!-- button to clear everything -->
-		<button class="btn variant-filled-error" on:click={clearOpenAIEverything}>Clear everything</button>
+		<!-- <button class="btn variant-filled-error" on:click={clearOpenAIEverything}>Clear everything</button> -->
+
+		<!-- button can go next? -->
 	{/if}
 
-    <button class="btn variant-filled" disabled={data.locked} on:click={next}>Next</button>
+    <button class="btn variant-filled-primary" disabled={data.locked} on:click={next}>Next</button>
+	
+
 

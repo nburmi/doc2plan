@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { openaiStore } from '../../stores/openai';
+    import { openaiStore } from '../../../stores/openai';
     import { get } from 'svelte/store';
-    import { planStore } from '../../stores/plan';
-    import Chapter from '../../components/Chapter.svelte';
+    import { planStore } from '../../../stores/plan';
+    import Chapter from '../../../components/Chapter.svelte';
     import Fa from 'svelte-fa'
     import { faPlus, faTrash, faWandMagicSparkles, faSpinner } from '@fortawesome/free-solid-svg-icons'
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
@@ -123,4 +123,4 @@
 
 
 <!-- finish button which redirects to save -->
-<button type="button" class="btn variant-filled-primary" on:click={() => window.location.href = '/save'}>Finish</button>
+<button type="button" class="btn variant-filled-primary" on:click={() => window.location.href = '/creator/save'}>Finish</button>
