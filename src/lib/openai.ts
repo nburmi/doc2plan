@@ -129,17 +129,14 @@ export async function clearOpenAI() {
     );
 
     try {
-        if (get(openaiStore).threadId) await openai.beta.threads.del(get(openaiStore).threadId);
         if (get(openaiStore).assistantId) await openai.beta.assistants.del(get(openaiStore).assistantId);
         if (get(openaiStore).vectorStoreId) await openai.beta.vectorStores.del(get(openaiStore).vectorStoreId);
         if (get(openaiStore).fileId) await openai.files.del(get(openaiStore).fileId);
-        if (get(openaiStore).fileId) await openai.beta.threads.del(get(openaiStore).threadId);
 
         openaiStore.update(value => {
             value.assistantId = '';
             value.fileId = '';
             value.vectorStoreId = '';
-            value.threadId = '';
             return value;
         });
     } catch (error) {
@@ -226,8 +223,7 @@ export async function extractChapters(): Promise<Chapter[]> {
         }
     );
 
-    let threadId = get(openaiStore).threadId;
-
+    let threadId = '';
     try {
         const thread = await openai.beta.threads.create();
         threadId = thread.id;

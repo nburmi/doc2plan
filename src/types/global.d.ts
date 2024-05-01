@@ -35,7 +35,6 @@ declare global {
         assistantId: string;
         fileId: string;
         vectorStoreId: string;
-        threadId: string;
     }
 }
 

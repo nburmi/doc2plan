@@ -4,6 +4,7 @@
 	import { openaiStore } from '../stores/openai';
 	import { planStore } from '../stores/plan';
 	import { get } from 'svelte/store';
+	import { goto } from '$app/navigation';
 
 	let data = {
 		planName: get(planStore).name,
@@ -135,6 +136,11 @@
 
 		data.canCreateOpenAI = !data.tokenInvalid && files != null && !data.createdOpenAI;
     }
+
+	// if open AI is already created, redirect to chapters
+	if (get(openaiStore).assistantId !== '' && !data.tokenInvalid) {
+		goto('/chapters');
+	}
 </script>
 	<label class="label">
 		<span>Plan name</span>

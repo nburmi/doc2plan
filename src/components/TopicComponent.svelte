@@ -97,7 +97,7 @@
 <div class="flex flex-col min-w-full border border-surface-500 rounded-container-token p-4 space-y-4 ">
     {#if openAI}
     <label class="label">
-        <input class="input" type="text" placeholder="AI: Path" bind:value={topic.path} on:change={updateTopic} required/>
+        <input class="input" type="text" placeholder="Path to content: Topic > Subtopic" bind:value={topic.path} on:change={updateTopic} required/>
     </label>
     {/if}
 

@@ -47,10 +47,6 @@
         });
     };
 
-    const printChapters = () => {
-        console.log(chapters);
-    };
-
     const deleteChapter = (id: number) => {
         return () => {
             planStore.update((store) => {
@@ -102,8 +98,8 @@
             <div class="arrow variant-filled-secondary" />
         </div>
 
-        <button class="btn btn-sm variant-filled-secondary" on:click={modalComponentForm}>AI</button>
-        <Modal />
+        <!-- <button class="btn btn-sm variant-filled-secondary" on:click={modalComponentForm}>AI</button>
+        <Modal /> -->
     {/if}
 </div>
 
@@ -128,7 +124,3 @@
 
 <!-- finish button which redirects to save -->
 <button type="button" class="btn variant-filled-primary" on:click={() => window.location.href = '/save'}>Finish</button>
-
-<!-- print chapters button -->
-<button type="button" class="btn variant-filled-primary" on:click={printChapters}>Print</button>
-
