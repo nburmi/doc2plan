@@ -22,6 +22,9 @@
 	function inSeconds(duration: number) {
 		return (duration / 1000).toFixed(2);
 	}
+	function inMinutes(duration: number) {
+		return (duration / 60000).toFixed(2);
+	}
 
 	// Form Data
 	const formData = {
@@ -31,6 +34,7 @@
 		extractChapters: false,
 		extractTopics: false,
 		quizes: true,
+		subtopics: false,
 	};
 
 	let chaptersMap = new Map();
@@ -70,7 +74,7 @@
 
 			// update the store
 			planStore.update((store) => {
-				const ordered = Array.from(chaptersMap.values()).sort((a, b) => a.id - b.id);
+				const ordered = Array.from(chapters.values()).sort((a, b) => a.id - b.id);
 				store.chapters = ordered;
 				return store;
 			});
@@ -151,6 +155,25 @@
 					const content = await generateTopicContent(chapter.name, topic.path);
 					topic.content = content;
 
+					let queue: Topic[] = [];
+					topic.children?.forEach((child) => {
+						queue.push(child);
+					});
+
+					while (queue.length > 0) {
+						const child = queue.shift();
+						if (!child) {
+							continue;
+						}
+
+						const content = await generateTopicContent(chapter.name, child.path);
+						child.content = content;
+
+						child.children?.forEach((child) => {
+							queue.push(child);
+						});
+					}
+
 					// update the map
 					selected[chapter.id] = chapter;
 				}
@@ -179,6 +202,26 @@
 						// generate quiz for each topic
 						const quiz = await generateQuizes(chapter.name, topic.path, topic.content);
 						topic.quizes = quiz;
+
+
+						let queue: Topic[] = [];
+						topic.children?.forEach((child) => {
+							queue.push(child);
+						});
+
+						while (queue.length > 0) {
+							const child = queue.shift();
+							if (!child || !child.content) {
+								continue;
+							}
+
+							const quiz = await generateQuizes(chapter.name, child.path, child.content);
+							child.quizes = quiz;
+
+							child.children?.forEach((child) => {
+								queue.push(child);
+							});
+						}
 					}
 
 					selected[chapter.id] = chapter;
@@ -259,12 +302,15 @@
 			<h2>Options:</h2>
 			<div class="s overflow-auto ">
 				<label class="flex items-center space-x-2">
+					<input class="checkbox" type="checkbox" bind:value={formData.subtopics} checked={formData.subtopics} />
+					<p>Generate content for all subtopics</p>
+				</label>
+
+				<label class="flex items-center space-x-2">
 					<input class="checkbox" type="checkbox" bind:value={formData.quizes} checked={formData.quizes} />
 					<p>With Quizes?</p>
 				</label>
 			</div>
-		
-
 			
 			<div class="flex items-center space-x-2">
 				<!-- button -->
@@ -296,7 +342,11 @@
 					{/if}
 					<p>{statusMessage}</p>
 					{#if duration > 0 && state !== status.InProgress}
-						<p>Duration: {inSeconds(duration)}s</p>
+						{#if duration > 60000}
+							<p>Duration: {inMinutes(duration)}m</p>
+						{:else}
+							<p>Duration: {inSeconds(duration)}s</p>
+						{/if}
 					{/if}
 				</div>
 			{/if}
