@@ -333,7 +333,7 @@ export async function extractKeyTopics(path: string) {
         }
     );
 
-    let threadId = get(openaiStore).threadId;
+    let threadId = '';
     try {
         const thread = await openai.beta.threads.create();
         threadId = thread.id;
@@ -561,7 +561,7 @@ export async function generateQuizes(chapter: string, path: string, content: str
         }
     );
 
-    let threadId = get(openaiStore).threadId;
+    let threadId = '';
     try {
         const thread = await openai.beta.threads.create();
         threadId = thread.id;

@@ -28,13 +28,12 @@
 
 	// Form Data
 	const formData = {
-		name: 'Jane Doe',
-		tel: '214-555-1234',
-		email: 'jdoe@email.com',
 		extractChapters: false,
 		extractTopics: false,
 		quizes: true,
 		subtopics: false,
+		stop: false,
+		stopMessage: 'Stop',
 	};
 
 	let chaptersMap = new Map();
@@ -60,6 +59,11 @@
 		modalStore.close();
 	}
 
+	function onStop(e: Event) {
+		formData.stop = true;
+		formData.stopMessage = 'Stopping...';
+	}
+
 	async function extractChapters() {
 		const startTime = new Date().getTime();
 		statusMessage = 'Extracting chapters';
@@ -68,6 +72,13 @@
 		try {
 			await aiExtractChapters();
 			chapters = await aiExtractChapters();
+			if (formData.stop) {
+				statusMessage = 'Extraction stopped';
+				state = status.Error;
+				formData.stop = false;
+				return;
+			}
+
 			chaptersSelected = chapters.map(chapter => ({ ...chapter, selected: true }));
 			state = status.Success;
 			statusMessage = 'Chapters extracted';
@@ -104,23 +115,21 @@
 
 			// extract key moments for each chapter
 			await Promise.all(selected.map(async (chapter) => {
-				console.log("extracting key topics for chapter: ", chapter.name);
+				if (formData.stop) {return;}
 
 				const keyTopics = await aiExtractKeyTopics(chapter.name);
 				chapter.keyTopics = keyTopics;
 
 				// update the map
 				chaptersMap.set(chapter.id, chapter);
+
+				console.log("key topics for chapter: ", chapter.name, keyTopics);
 			}));
-
-			selected.forEach((chapter) => {
-				console.log("chapter: ",chapter.name, chapter.keyTopics);
-			});
-
 			
 			// create topics from key moments
 			statusMessage = 'Creating topics for each chapter';
 			selected.map((chapter) => {
+				if (formData.stop) {return;}
 				console.log("creating topics for chapter: ", chapter.name);
 
 				if (!chapter.keyTopics) {
@@ -137,9 +146,10 @@
 
 
 			statusMessage = 'Generating content for each topic';
-
 			// generate content for each topic
 			await Promise.all(selected.map(async (chapter) => {
+				if (formData.stop) {return;}
+
 				console.log("generating content for chapter: ", chapter.name);
 
 				if (!chapter.topics) {
@@ -154,6 +164,8 @@
 					// generate content for each topic
 					const content = await generateTopicContent(chapter.name, topic.path);
 					topic.content = content;
+					if (formData.stop) {return;}
+
 
 					let queue: Topic[] = [];
 					topic.children?.forEach((child) => {
@@ -161,6 +173,8 @@
 					});
 
 					while (queue.length > 0) {
+						if (formData.stop) {return;}
+
 						const child = queue.shift();
 						if (!child) {
 							continue;
@@ -183,6 +197,7 @@
 			if (formData.quizes) {
 				statusMessage = 'Generating quiz for each topic';
 				await Promise.all(selected.map(async (chapter) => {
+					if (formData.stop) {return;}
 					console.log("generating quiz for chapter: ", chapter.name);
 
 					if (!chapter.topics) {
@@ -191,6 +206,8 @@
 					}
 
 					for (let i = 0; i < chapter.topics.length; i++) {
+						if (formData.stop) {return;}
+
 						const topic = chapter.topics[i];
 						console.log("generating quiz for topic: ", topic.title);
 
@@ -203,13 +220,14 @@
 						const quiz = await generateQuizes(chapter.name, topic.path, topic.content);
 						topic.quizes = quiz;
 
-
 						let queue: Topic[] = [];
 						topic.children?.forEach((child) => {
 							queue.push(child);
 						});
 
 						while (queue.length > 0) {
+							if (formData.stop) {return;}
+
 							const child = queue.shift();
 							if (!child || !child.content) {
 								continue;
@@ -234,6 +252,13 @@
 				store.chapters = ordered;
 				return store;
 			});
+
+			if (formData.stop) {
+				statusMessage = 'Extraction stopped';
+				state = status.Error;
+				formData.stop = false;
+				return;
+			}
 
 			state = status.Success;
 			statusMessage = 'Topics extracted';
@@ -349,6 +374,10 @@
 						{/if}
 					{/if}
 				</div>
+			{/if}
+
+			{#if state === status.InProgress}
+				<button class="btn variant-filled-error" on:click={onStop} disabled={formData.stop}>{formData.stopMessage}</button>
 			{/if}
 
 			<!-- <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button> -->
