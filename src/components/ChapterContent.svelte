@@ -45,14 +45,14 @@
             {#if loading}
             <Fa icon={faSpinner} class="animate-spin"/>
             {:else}
-            Extract key moments
+            Extract key topics
             {/if}
         </button>
 
         {#if chapter.keyTopics && chapter.keyTopics.length > 0}
             <!-- button parse to topics -->
             <button class="btn btn-sm variant-filled-secondary" on:click={parseKeyTopics} disabled={loading}>
-                Create topics from key moments
+                Create topics from key topics
             </button>
         {/if}
     {/if}
