@@ -4,4 +4,5 @@
     export let data: PageData;
 </script>
 
-<h1>Settings</h1>
+<h1>Settings page</h1>
+<h2>Open AI settings</h2>
