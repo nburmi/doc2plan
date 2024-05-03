@@ -1,26 +1,40 @@
 <script lang="ts">
 	import type { TreeViewNode } from '@skeletonlabs/skeleton';
-	import { RecursiveTreeView } from '@skeletonlabs/skeleton';
+	import { RecursiveTreeView, TreeView } from '@skeletonlabs/skeleton';
 	import { planStore } from '../../stores/plan';
 	import { get } from 'svelte/store';
-
+    import * as marked from 'marked';
+	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+	import TreeViewNodeContent from '$lib/components/viewer/TreeViewNodeContent.svelte';
 
 	const plan = get(planStore);
-	const chapters = chaptersToTree(plan.chapters);
-
+	let checkedNodes : string[] = [];
+	let indeterminateNodes: string[] = [];
+	let chapters = chaptersToTree(plan.chapters);
 	function chaptersToTree(chapters: Chapter[]): TreeViewNode[] {
 		let items: TreeViewNode[] = [];
 
 		chapters.forEach(chapter => {
 			const chapterID = makeChapterID(chapter);
+			if (chapter.done) {
+				insertChecked(chapterID);
+			}
+
+			const result = topicsToTree(chapterID, chapter.topics);
+			if (result.indeterminateParent) {
+				insertParent(chapterID);
+			}
 
 			items.push({
 				id: chapterID,
-				content: chapter.name,
-				children: topicsToTree(chapterID, chapter.topics)
+				content: TreeViewNodeContent,
+				contentProps: {
+					empty: chapter.keyTopics ? false : true,
+					content: chapter.name,
+				},
+				children: result.nodes,
 			});
 		});
-
 
 		return items;
 	}
@@ -28,47 +42,145 @@
 	function makeChapterID (chapter: Chapter) {return `chapter-${chapter.id}`};
 	function makeTopicID (parent: string, topic: Topic) { return `${parent}-topic-${topic.id}`};
 
-	function topicsToTree(parent: string, topics: Topic[]): TreeViewNode[] {
+
+	function insertParent(parent: string): boolean {
+		// isert into intermediate nodes if parent is not checked
+		if (!checkedNodes.includes(parent) && !indeterminateNodes.includes(parent)) {
+			indeterminateNodes.push(parent);
+			return true;
+		}
+
+		return false;
+	}
+
+	function insertChecked(id: string) {
+		// remove from intermediate nodes
+		// if not exist in checked nodes
+		if (!checkedNodes.includes(id)) {
+			const index = indeterminateNodes.indexOf(id);
+			if (index > -1) {
+				indeterminateNodes.splice(index, 1);
+			}
+
+			checkedNodes.push(id);
+		}
+	}
+
+	function topicsToTree(parent: string, topics: Topic[]): { nodes: TreeViewNode[], indeterminateParent: boolean } {
 		let items: TreeViewNode[] = [];
 
+		let indeterminateParent = false;
 		topics.forEach(topic => {
 			const topicID = makeTopicID(parent, topic);
+			if (topic.done) {
+				insertParent(parent);
+				insertChecked(topicID);
+				indeterminateParent = true;
+			};
 
+			const result = topicsToTree(topicID, topic.children ? topic.children : []);
 			items.push({
 				id: topicID,
-				content: topic.title,
-				children: topic.children ? topicsToTree(topicID, topic.children) : []
+				children: result.nodes,
+				content: TreeViewNodeContent,
+				contentProps: {
+					empty: topic.content ? false : true,
+					content: topic.title,
+				},
+			});
+			indeterminateParent = result.indeterminateParent || indeterminateParent;
+		});
+
+		if (indeterminateParent) {
+			insertParent(parent);
+		}
+
+		return { nodes: items, indeterminateParent: indeterminateParent };
+	}
+
+	$: {
+		console.log("checked nodes", checkedNodes);
+		console.log("indeterminate nodes", indeterminateNodes);
+
+		get(planStore).chapters.forEach(chapter => {
+			chapter.done = false;
+
+			chapter.topics.forEach(topic => {
+				topic.done = false;
+
+				const queue = [];
+				if (topic.children) {
+					queue.push(...topic.children);
+				}
+
+				while (queue.length > 0) {
+					const current = queue.shift();
+					if (!current) {
+						continue;
+					}
+
+					current.done = false;
+					if (current.children) {
+						queue.push(...current.children);
+					}
+				}
 			});
 		});
 
-		return items;
+		checkedNodes.forEach(id => {
+			const chapter = findChapter(id);
+			if (chapter) {
+				chapter.done = true;
+				return;
+			}
+
+			const topic = findTopic(id);
+			if (topic) {
+				topic.done = true;
+				return;
+			}
+		});
+
+		// update plan store
+		planStore.set(plan);
 	}
 
-	let checkedNodes : string[] = [];
+	let currentTopic: Topic | null = null;
+	let currentChapter: Chapter | null = null;
 
-	let current: Topic | null = null;
 	function clickHandler(event: CustomEvent) {
 		const id = event.detail.id;
 		// if doesn't have topic- in the id, it's a chapter
 		if (!id.includes('topic-')) {
-			console.log('chapter', id);
+			currentChapter = findChapter(id);
+			currentTopic = null;
 			return;
 		}
 
-		console.log('topic', id);
-		current = findTopic(id);
+		currentTopic = findTopic(id);
+		currentChapter = null;
 	}
 
-	function findTopic (id: string): Topic | null {
+	function findTopic(id: string): Topic | null {
 		for (let chapter of plan.chapters) {
 			if (!id.startsWith(makeChapterID(chapter))) {
 				// cur chapter
 				continue;
 			}
 
-			current = recursiveFindTopic(id, makeChapterID(chapter), chapter.topics);
-			if (current) {
-				return current;
+			currentTopic = recursiveFindTopic(id, makeChapterID(chapter), chapter.topics);
+			if (currentTopic) {
+				return currentTopic;
+			}
+		}
+
+		return null;
+	}
+
+	function findChapter(id: string): Chapter | null {
+		for (const chapter of plan.chapters) {
+			if (id === makeChapterID(chapter)) {
+				return chapter;
 			}
 		}
 
@@ -76,7 +188,7 @@
 	}
 
 	function recursiveFindTopic(id: string, parent: string, topics: Topic[]): Topic | null {
-		for (let topic of topics) {
+		for (const topic of topics) {
 			const topicID = makeTopicID(parent, topic);
 
 			if (id === topicID) {
@@ -106,31 +218,36 @@
 		relational 
 		nodes={chapters} 
 		bind:checkedNodes={checkedNodes}
+		bind:indeterminateNodes={indeterminateNodes}
 		on:click={clickHandler}
+		width="w-fit"
 		/>
 	</div>
 	<div class="container p-10 space-y-4">
-		{#if current}
-			<h1>{current.title}</h1>
-			<p>{current.content}</p>
-
-			{#if current.quizes}
-				<h2>Quizes</h2>
-				<ul>
-					{#each current.quizes as quiz}
-						<li>{quiz.question}: {quiz.answer}</li>
-					{/each}
-				</ul>
-			{/if}
+		{#if currentChapter && !currentTopic}
+			<h1>{currentChapter.name}</h1>
+			{@html marked.parse(currentChapter.keyTopics ? currentChapter.keyTopics : '')}
 		{/if}
 
+		{#if currentTopic}
+			<h1>{currentTopic.title}</h1>
+			{@html marked.parse(currentTopic.content ? currentTopic.content : '')}
 
-		<h1>Selected Nodes</h1>
-		<ul>
-			{#each checkedNodes as node}
-				<li>{node}</li>
-			{/each}
-		</ul>
+
+			{#if currentTopic.quizes}
+				<h2>Quizes</h2>
+				<Accordion>
+					{#each currentTopic.quizes as quiz}
+						<AccordionItem>
+							<svelte:fragment slot="summary">{quiz.question}</svelte:fragment>
+							<svelte:fragment slot="content">
+								{@html marked.parse(quiz.answer)}
+							</svelte:fragment>
+						</AccordionItem>
+					{/each}
+				</Accordion>
+			{/if}
+		{/if}
 	</div>
 </div>
 
