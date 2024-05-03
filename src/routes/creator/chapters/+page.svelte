@@ -13,6 +13,7 @@
     import AIModalForm from '$lib/components/AIModalForm.svelte';
     import type { ModalSettings, ModalComponent } from '@skeletonlabs/skeleton';
     import { getModalStore } from '@skeletonlabs/skeleton';
+    import { goto } from '$app/navigation';
 
 
     initializeStores();
@@ -123,4 +124,4 @@
 
 
 <!-- finish button which redirects to save -->
-<button type="button" class="btn variant-filled-primary" on:click={() => window.location.href = '/creator/save'}>Finish</button>
+<button type="button" class="btn variant-filled-primary" on:click={() => goto('/creator/save')}>Finish</button>

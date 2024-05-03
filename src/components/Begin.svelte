@@ -29,7 +29,7 @@
 			store.assistantId = data.createdOpenAI ? store.assistantId : '';
 			return store;
 		});
-		window.location.href = '/creator/chapters';
+		goto('/creator/chapters');
 	};
 
 
