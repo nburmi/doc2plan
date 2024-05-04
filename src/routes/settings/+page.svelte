@@ -82,6 +82,7 @@
     }
 
     let deleting = false;
+    let createdOpenAI: boolean = get(openaiStore).assistantId !== '';
     async function deleteAndReset() {
         try {
             deleting = true;
@@ -175,7 +176,7 @@
                 {/if}
             </button>
 
-            <button class="btn variant-filled-error ml-2" use:popup={popupHover} on:click={deleteAndReset} disabled={deleting}>
+            <button class="btn variant-filled-error ml-2" use:popup={popupHover} on:click={deleteAndReset} disabled={deleting || !createdOpenAI}>
                 {#if deleting}
                     <Fa icon={faSpinner} class="animate-spin" />
                     <p class="ml-2">Deleting...</p>
