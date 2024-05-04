@@ -5,6 +5,7 @@
 	import { planStore } from '../stores/plan';
 	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
+	
 
 	let data = {
 		planName: get(planStore).name,
@@ -149,10 +150,33 @@
 	}
 
 	let importedPlan: FileList;
+	let imported: boolean = false;
+	function handleImportedFile() {
+		const file = importedPlan[0];
+		const reader = new FileReader();
+		reader.onload = async (e) => {
+			if (!e.target || !e.target.result) {
+				return;
+			}
+
+			const text = e.target.result as string;
+			const plan: Plan = JSON.parse(text);
+			data.planName = plan.name;
+			planStore.update((store) => {
+				store.name = plan.name;
+				store.chapters = plan.chapters;
+				return store;
+			});
+
+			imported = true;
+		};
+
+		reader.readAsText(file);
+	}
 </script>
 
 <div class="flex justify-center mb-4">
-	<h1 class="text-2xl font-bold">Create a new plan or import it from json</h1>
+	<h1 class="text-2xl font-bold">Create a new plan or import from json</h1>
 </div>
 
 <div class="flex flex-col space-y-4 mb-4">
@@ -162,8 +186,16 @@
 	</label>
 
 	<label class="label">
-		<span>Import from JSON</span>
-		<input class="input" type="file" bind:files={importedPlan} accept=".json"/>
+		<span class="">
+			{#if imported}
+				<p class="text-primary-500">
+					Imported plan from JSON
+				</p>
+			{:else}
+				Import plan from JSON
+			{/if}
+		</span>
+		<input class="input" type="file" bind:files={importedPlan} accept=".json" on:change={handleImportedFile}/>
 	</label>
 </div>
 
