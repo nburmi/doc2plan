@@ -31,17 +31,24 @@ export async function isValidApiKey(apikey: string): Promise<boolean> {
     }
 }
 
-const params = {
-    name: 'ihaveaplan',
-    model: 'gpt-3.5-turbo-0125',
-    description: 'Create a learning plan from your documents.',
-    instructions: 'You are helpfull assistant that can generate learning plan based on user goals and options.',
-    temperature: 0.2,
-}
 
 
 // create an assistant
 export async function createAssistant() {
+    const params = {
+        name: 'ihaveaplan',
+        description: 'Create a learning plan from your documents.',
+        instructions: 'You are helpfull assistant that can generate learning plan based on user goals and options.',
+        model: get(openaiStore).model,
+        temperature: get(openaiStore).temperature,
+        vector_store_id: get(openaiStore).vectorStoreId,
+        file_id: get(openaiStore).fileId,
+    }
+
+    if (!params.file_id) {
+        throw new Error("No file uploaded");
+    }
+
     const openai = new OpenAI(
         {
             apiKey: get(openaiStore).apiKey,
@@ -49,9 +56,7 @@ export async function createAssistant() {
         }
     );
 
-    if (!get(openaiStore).fileId) {
-        throw new Error("No file uploaded");
-    }
+    console.log('creating assistant', get(openaiStore).model);
 
     try {
         const response = await openai.beta.assistants.create({
@@ -63,7 +68,7 @@ export async function createAssistant() {
             tools: [{ type: 'file_search' }],
             tool_resources: {
                 file_search: {
-                    vector_store_ids: [get(openaiStore).vectorStoreId],
+                    vector_store_ids: [params.vector_store_id],
                 }
             },
         })

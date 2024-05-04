@@ -35,7 +35,11 @@ declare global {
         assistantId: string;
         fileId: string;
         vectorStoreId: string;
+        model: string;
+        temperature: number;
+        reset(): void;
     }
 }
+
 
 export {};

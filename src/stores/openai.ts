@@ -5,4 +5,14 @@ export const openaiStore = persisted<OpenAI>('openai', {
     assistantId: '',
     fileId: '',
     vectorStoreId: '',
+    model: 'gpt-3.5-turbo-0125',
+    temperature: 0.2,
+    reset() {
+        this.apiKey = ''
+        this.assistantId = ''
+        this.fileId = ''
+        this.vectorStoreId = ''
+        this.model = 'gpt-3.5-turbo-0125'
+        this.temperature = 0.2
+    }
 });
