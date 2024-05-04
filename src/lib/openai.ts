@@ -31,8 +31,6 @@ export async function isValidApiKey(apikey: string): Promise<boolean> {
     }
 }
 
-
-
 // create an assistant
 export async function createAssistant() {
     const params = {
@@ -83,6 +81,57 @@ export async function createAssistant() {
     }
 }
 
+export async function updateAssistant() {
+    const params = {
+        name: 'ihaveaplan',
+        description: 'Create a learning plan from your documents.',
+        instructions: 'You are helpfull assistant that can generate learning plan based on user goals and options.',
+        model: get(openaiStore).model,
+        temperature: get(openaiStore).temperature,
+        vector_store_id: get(openaiStore).vectorStoreId,
+        file_id: get(openaiStore).fileId,
+        assistant_id: get(openaiStore).assistantId,
+    }
+
+    if (!params.file_id) {
+        throw new Error("No file uploaded");
+    }
+
+    const openai = new OpenAI(
+        {
+            apiKey: get(openaiStore).apiKey,
+            dangerouslyAllowBrowser: true
+        }
+    );
+
+    console.log('updating assistant', get(openaiStore).model);
+
+    try {
+        const response = await openai.beta.assistants.update(params.assistant_id, {
+            model: params.model,
+            description: params.description,
+            instructions: params.instructions,
+            name: params.name,
+            temperature: params.temperature,
+            tools: [{ type: 'file_search' }],
+            tool_resources: {
+                file_search: {
+                    vector_store_ids: [params.vector_store_id],
+                }
+            },
+        })
+        if (response.id) {
+            openaiStore.update(value => {
+                value.assistantId = response.id;
+                return value;
+            });
+        }
+    } catch (error) {
+        throw new Error(`Error updating assistant: ${error}`);
+    }
+}
+
+
 // upload a file to the assistant
 export async function uploadFile(file: File) {
     const openai = new OpenAI(
@@ -125,7 +174,9 @@ export async function uploadFile(file: File) {
     }
 }
 
-export async function clearOpenAI() {
+export async function clearOpenAI({ assistantId, fileId, vectorStoreId 
+}: { assistantId?: string, fileId?: string, vectorStoreId?: string}
+) {
     const openai = new OpenAI(
         {
             apiKey: get(openaiStore).apiKey,
@@ -134,9 +185,9 @@ export async function clearOpenAI() {
     );
 
     try {
-        if (get(openaiStore).assistantId) await openai.beta.assistants.del(get(openaiStore).assistantId);
-        if (get(openaiStore).vectorStoreId) await openai.beta.vectorStores.del(get(openaiStore).vectorStoreId);
-        if (get(openaiStore).fileId) await openai.files.del(get(openaiStore).fileId);
+        if (assistantId) await openai.beta.assistants.del(assistantId);
+        if (vectorStoreId) await openai.beta.vectorStores.del(vectorStoreId);
+        if (fileId) await openai.files.del(fileId);
 
         openaiStore.update(value => {
             value.assistantId = '';

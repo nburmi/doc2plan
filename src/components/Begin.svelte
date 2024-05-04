@@ -54,7 +54,13 @@
 		const text = button.innerHTML;
 		loadingButton(e, 'Clearing');
 
-		await clearOpenAI();
+		await clearOpenAI(
+			{
+				assistantId: get(openaiStore).assistantId,
+				fileId: get(openaiStore).fileId,
+				vectorStoreId: get(openaiStore).vectorStoreId,
+			}
+		);
 
 		normalButton(e, text);
 
@@ -67,25 +73,27 @@
 	}
 
 	async function createOpenAI(e: Event) {
-		const button = e.target as HTMLButtonElement;
-		const text = button.innerHTML;
-		loadingButton(e, 'File uploading');
+		try {
+			const button = e.target as HTMLButtonElement;
+			const text = button.innerHTML;
+			loadingButton(e, 'File uploading');
 
-		if (!files) {
-			data.errorMsg = 'No files selected';
+			if (!files) {
+				data.errorMsg = 'No files selected';
+				normalButton(e, text);
+				return;
+			}
+
+			await uploadFile(files[0]);
+			loadingButton(e, 'Creating assistant');
+			await createAssistant();
 			normalButton(e, text);
-			return;
+			data.createdOpenAI = true;
+		} catch (err: any) {
+			data.errorMsg = `${err}`;
+		} finally {
+			normalButton(e, 'Create OpenAI');
 		}
-
-		await uploadFile(files[0])
-
-		loadingButton(e, 'Creating assistant');
-
-		await createAssistant();
-
-		normalButton(e, text);
-
-		data.createdOpenAI = true;
 	}
 
 	async function validateToken() {
@@ -113,25 +121,31 @@
         }
     }
 
-    $: {
-        if (data.planName.length < 3) {
-            data.locked = true;
+	$: {
+		const isPlanNameTooShort = data.planName.length < 3;
+		const isTokenInvalidOrNoFiles = data.withAI && (data.tokenInvalid || (!files && !data.createdOpenAI));
+		const isNotCreatedOpenAI = data.withAI && !data.createdOpenAI;
+
+		if (isPlanNameTooShort) {
+			data.locked = true;
 			data.errorMsg = 'Plan name is too short';
-        } else if (data.withAI && ((data.tokenInvalid || (!files && !data.createdOpenAI)) || !data.createdOpenAI)) {
-            data.locked = true;
+		} else if (isTokenInvalidOrNoFiles || isNotCreatedOpenAI) {
+			data.locked = true;
 			if (data.tokenInvalid) {
 				data.errorMsg = 'Token is invalid';
 			} else if (!files) {
 				data.errorMsg = 'No files selected';
+			} else if (data.errorMsg.startsWith('Error')) {
+				data.errorMsg = data.errorMsg;
 			} else {
 				data.errorMsg = 'OpenAI not created yet';
 			}
-        } else {
-            data.locked = false;
-        }
+		} else {
+			data.locked = false;
+		}
 
 		data.canCreateOpenAI = !data.tokenInvalid && files != null && !data.createdOpenAI;
-    }
+	}
 
 	$: data.createdOpenAI = get(openaiStore).assistantId !== '';
 
