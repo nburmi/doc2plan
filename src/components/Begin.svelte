@@ -19,6 +19,11 @@
     let files: FileList;
 	validateToken();
 
+	openaiStore.subscribe((store) => {
+		data.token = store.apiKey;
+		data.createdOpenAI = store.assistantId !== '';
+	});
+
 	const next = () => {
 		planStore.update((store) => {
 			store.name = data.planName;
@@ -65,11 +70,7 @@
 		normalButton(e, text);
 
 		// show the button
-		data.createdOpenAI = false;
-	}
-
-	async function clearOpenAIEverything() {
-		await clearEverything();
+		data.createdOpenAI = get(openaiStore).assistantId !== '';
 	}
 
 	async function createOpenAI(e: Event) {
@@ -147,25 +148,30 @@
 		data.canCreateOpenAI = !data.tokenInvalid && files != null && !data.createdOpenAI;
 	}
 
-	$: data.createdOpenAI = get(openaiStore).assistantId !== '';
-
+	let importedPlan: FileList;
 </script>
-	<!-- center div -->
-	<div class="flex justify-center">
-		<h1 class="text-2xl font-bold">Create a new plan</h1>
-	</div>
 
-	<label class="label mb-4">
+<div class="flex justify-center mb-4">
+	<h1 class="text-2xl font-bold">Create a new plan or import it from json</h1>
+</div>
+
+<div class="flex flex-col space-y-4 mb-4">
+	<label class="label">
 		<span>Plan name</span>
-        <input type="text" placeholder="Enter your plan name" bind:value={data.planName} class="input" />
+		<input type="text" placeholder="Enter your plan name" bind:value={data.planName} class="input" />
 	</label>
 
-    <div class="space-y-2">
-        <label class="flex items-center space-x-2">
-            <input class="checkbox" type="checkbox" bind:checked={data.withAI} />
-            <p>With OpenAI</p>
-        </label>
-    </div>
+	<label class="label">
+		<span>Import from JSON</span>
+		<input class="input" type="file" bind:files={importedPlan} accept=".json"/>
+	</label>
+</div>
+
+<div class="flex flex-col space-y-4 justify-between">
+	<label class="flex items-center space-x-2">
+		<input class="checkbox" type="checkbox" bind:checked={data.withAI} />
+		<p>With OpenAI</p>
+	</label>
 
 	<!-- error message -->
 	{#if data.locked}
@@ -173,7 +179,18 @@
 	{/if}
 
 	{#if data.withAI}
-		<h1>Create assistant in OpenAI. If button <span class="text-primary-500">Next</span> is active you can skip this step.</h1>
+		<h1>Create assistant in OpenAI. </h1>
+		<h2>
+			If button <span class="text-primary-500">Next</span> is active it means that you already have an assistant. 
+		</h2>
+		<h2>
+			You can clear it and create a new one (assistant).
+		</h2>
+		<div>
+			<button class="btn variant-filled-error" on:click={clear} disabled={!data.createdOpenAI}>
+				Clear OpenAI
+			</button>
+		</div>
 
 		<label class="label">
 			<span>OpenAI API token</span>
@@ -204,34 +221,28 @@
 		</Accordion>
 
 
-        <label class="label">
-            <span>Document</span>
-            <input class="input" type="file" bind:files={files}/>
-        </label>
+		<label class="label">
+			<span>Document for assistant file search.</span>
+			<input class="input" type="file" bind:files={files} accept=".pdf"/>
+		</label>
 
-        <ul>
-            {#if files}
-                {#each Array.from(files) as file}
-                    <li>Name: {file.name}</li>
-                    <li>Type: {file.type}</li>
-                    <li>Size: {readableFileSize(file.size)}</li>
-                {/each}
-            {:else}
-                <li>No files selected</li>
-            {/if}
-        </ul>
-
-        <!-- <button class="btn variant-filled-error {data.createdOpenAI ? '': 'hidden'}" on:click={clear}>Clear</button> -->
-		<!-- button to create openAI  -->
-		<button class="btn variant-filled {data.canCreateOpenAI ? '': 'hidden'}" on:click={createOpenAI}>Create OpenAI</button>
-
-		<!-- button to clear everything -->
-		<!-- <button class="btn variant-filled-error" on:click={clearOpenAIEverything}>Clear everything</button> -->
-
-		<!-- button can go next? -->
+		<ul>
+			{#if files}
+				{#each Array.from(files) as file}
+					<li>Name: {file.name}</li>
+					<li>Type: {file.type}</li>
+					<li>Size: {readableFileSize(file.size)}</li>
+				{/each}
+			{:else}
+				<li>No files selected</li>
+			{/if}
+		</ul>
+			
+		<div>
+			<button class="btn variant-filled {data.canCreateOpenAI ? '': 'hidden'}" on:click={createOpenAI}>Create OpenAI</button>
+		</div>
 	{/if}
+</div>
 
-    <button class="btn variant-filled-primary mt-4" disabled={data.locked} on:click={next}>Next</button>
+<button class="btn variant-filled-primary mt-4" disabled={data.locked} on:click={next}>Next</button>
 	
-
-
