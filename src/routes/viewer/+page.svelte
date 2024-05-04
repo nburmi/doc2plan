@@ -6,6 +6,8 @@
     import * as marked from 'marked';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import TreeViewNodeContent from '$lib/components/viewer/TreeViewNodeContent.svelte';
+	import SplitPane from "$lib/components/viewer/SplitPane.svelte";
+
 
 	const plan = get(planStore);
 	let checkedNodes : string[] = [];
@@ -208,46 +210,54 @@
 	}
 </script>
 
-<div class="flex">
-	<div class="container space-y-4">
-		<h1>{plan.name}</h1>
-	
-		<RecursiveTreeView 
-		selection 
-		multiple 
-		relational 
-		nodes={chapters} 
-		bind:checkedNodes={checkedNodes}
-		bind:indeterminateNodes={indeterminateNodes}
-		on:click={clickHandler}
-		width="w-fit"
-		/>
+
+<SplitPane>
+	<div slot="left">
+		<div class="card space-y-4">
+			<h1>{plan.name}</h1>
+		
+			<RecursiveTreeView 
+			selection 
+			multiple 
+			relational 
+			nodes={chapters} 
+			bind:checkedNodes={checkedNodes}
+			bind:indeterminateNodes={indeterminateNodes}
+			on:click={clickHandler}
+			width="w-fit"
+			/>
+		</div>
+
+
 	</div>
-	<div class="container p-10 space-y-4">
-		{#if currentChapter && !currentTopic}
-			<h1>{currentChapter.name}</h1>
-			{@html marked.parse(currentChapter.keyTopics ? currentChapter.keyTopics : '')}
-		{/if}
-
-		{#if currentTopic}
-			<h1>{currentTopic.title}</h1>
-			{@html marked.parse(currentTopic.content ? currentTopic.content : '')}
-
-
-			{#if currentTopic.quizes}
-				<h2>Quizes</h2>
-				<Accordion>
-					{#each currentTopic.quizes as quiz}
-						<AccordionItem>
-							<svelte:fragment slot="summary">{quiz.question}</svelte:fragment>
-							<svelte:fragment slot="content">
-								{@html marked.parse(quiz.answer)}
-							</svelte:fragment>
-						</AccordionItem>
-					{/each}
-				</Accordion>
+	<div slot="right">
+		<div class="card container space-y-4 pl-4">
+			{#if currentChapter && !currentTopic}
+				<h1>{currentChapter.name}</h1>
+				{@html marked.parse(currentChapter.keyTopics ? currentChapter.keyTopics : '')}
 			{/if}
-		{/if}
+	
+			{#if currentTopic}
+				<h1>{currentTopic.title}</h1>
+				{@html marked.parse(currentTopic.content ? currentTopic.content : '')}
+	
+	
+				{#if currentTopic.quizes}
+					<h2>Quizes</h2>
+					<Accordion>
+						{#each currentTopic.quizes as quiz}
+							<AccordionItem>
+								<svelte:fragment slot="summary">{quiz.question}</svelte:fragment>
+								<svelte:fragment slot="content">
+									{@html marked.parse(quiz.answer)}
+								</svelte:fragment>
+							</AccordionItem>
+						{/each}
+					</Accordion>
+				{/if}
+			{/if}
+		</div>
 	</div>
-</div>
+</SplitPane>
+
 
