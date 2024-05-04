@@ -214,8 +214,7 @@
 <SplitPane>
 	<div slot="left">
 		<div class="card space-y-4">
-			<h1>{plan.name}</h1>
-		
+			<h1 class="card-header text-center">Plan: {plan.name}</h1>			
 			<RecursiveTreeView 
 			selection 
 			multiple 
@@ -227,8 +226,6 @@
 			width="w-fit"
 			/>
 		</div>
-
-
 	</div>
 	<div slot="right">
 		<div class="card container space-y-4 pl-4">
