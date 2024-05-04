@@ -138,7 +138,7 @@
 </script>
 	<label class="label">
 		<span>Plan name</span>
-        <input type="text" placeholder="Enter your plan name" bind:value={data.planName} class="input variant-form-material" />
+        <input type="text" placeholder="Enter your plan name" bind:value={data.planName} class="input" />
 	</label>
 
     <div class="space-y-2">
