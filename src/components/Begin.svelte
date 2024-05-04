@@ -150,7 +150,12 @@
 	$: data.createdOpenAI = get(openaiStore).assistantId !== '';
 
 </script>
-	<label class="label">
+	<!-- center div -->
+	<div class="flex justify-center">
+		<h1 class="text-2xl font-bold">Create a new plan</h1>
+	</div>
+
+	<label class="label mb-4">
 		<span>Plan name</span>
         <input type="text" placeholder="Enter your plan name" bind:value={data.planName} class="input" />
 	</label>
@@ -168,14 +173,15 @@
 	{/if}
 
 	{#if data.withAI}
+		<h1>Create assistant in OpenAI. If button <span class="text-primary-500">Next</span> is active you can skip this step.</h1>
+
 		<label class="label">
 			<span>OpenAI API token</span>
 			<input id="token" bind:value={data.token} on:change={validateToken} class="input" type="text" placeholder="Enter your openAI token here" />
 		</label>
 		<Accordion>
 			<AccordionItem>
-				<svelte:fragment slot="lead">How to get OpenAI token</svelte:fragment>
-				<svelte:fragment slot="summary">links</svelte:fragment>
+				<svelte:fragment slot="summary">How to get OpenAI token</svelte:fragment>
 				<svelte:fragment slot="content">
 					<p>1. Go to <a class="text-blue-500 hover:text-blue-700 underline" href="https://platform.openai.com/signup" target="_blank">OpenAI</a> and sign up for an account.</p>
 					<p>2. Go to <a class="text-blue-500 hover:text-blue-700 underline" href="https://platform.openai.com/account/api-keys" target="_blank">API keys</a> and create a new key.</p>
@@ -183,10 +189,8 @@
 				</svelte:fragment>
 			</AccordionItem>
 			<AccordionItem>
-				<svelte:fragment slot="lead">How your OpenAI token will be used</svelte:fragment>
-				<svelte:fragment slot="summary">technical details</svelte:fragment>
+				<svelte:fragment slot="summary">How your OpenAI token will be used</svelte:fragment>
 				<svelte:fragment slot="content">
-					<h4>How your token will be used:</h4>
 					<ul>
 						<li>token stored in your browser</li>
 						<li>token will be used to access the OpenAI api</li>
@@ -217,7 +221,7 @@
             {/if}
         </ul>
 
-        <button class="btn variant-filled-error {data.createdOpenAI ? '': 'hidden'}" on:click={clear}>Clear</button>
+        <!-- <button class="btn variant-filled-error {data.createdOpenAI ? '': 'hidden'}" on:click={clear}>Clear</button> -->
 		<!-- button to create openAI  -->
 		<button class="btn variant-filled {data.canCreateOpenAI ? '': 'hidden'}" on:click={createOpenAI}>Create OpenAI</button>
 
@@ -227,7 +231,7 @@
 		<!-- button can go next? -->
 	{/if}
 
-    <button class="btn variant-filled-primary" disabled={data.locked} on:click={next}>Next</button>
+    <button class="btn variant-filled-primary mt-4" disabled={data.locked} on:click={next}>Next</button>
 	
 
 
