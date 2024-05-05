@@ -8,6 +8,8 @@
     import { createEventDispatcher } from 'svelte';
 
     export let chapter: Chapter;
+
+    const withAI = get(openaiStore).assistantId !== '';
     let loading = false;
     async function findKeyTopics() {
         loading = true;
@@ -39,7 +41,7 @@
 </script>
 
 <section class="">
-    {#if get(openaiStore).assistantId !== ''}
+    {#if withAI}
         <textarea bind:value={chapter.keyTopics} class="textarea" placeholder="Key topics"></textarea>
         <button class="btn btn-sm variant-filled-secondary" on:click={findKeyTopics} disabled={loading}>
             {#if loading}
@@ -59,7 +61,7 @@
 
     <div class="flex">
         {#if chapter}
-            <Topics topics={chapter.topics} chapter_id={chapter.id}/>
+            <Topics topics={chapter.topics} chapter_id={chapter.id} withAI={withAI}/>
         {/if}
     </div>
 </section>

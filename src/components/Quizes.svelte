@@ -2,13 +2,14 @@
     import QuizComponent from './QuizComponent.svelte';
     import { createEventDispatcher } from 'svelte';
     import { Fa } from 'svelte-fa';
-    import { faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
+    import { faPlus, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
     import { generateQuizes as aiGenerateQuizes } from '$lib/openai';
 
     export let quizes: Quiz[] | undefined;
     export let chapterName: string;
     export let topicPath: string;
     export let topicContent: string | undefined;
+    export let withAI: boolean;
 
     let loading = false;
     let show = true;
@@ -76,23 +77,28 @@
     <button class="btn btn-sm variant-filled" on:click={addQuiz} disabled={loading}>
         <Fa icon={faPlus} />
     </button>
-    <!-- button AI generate -->
-    <button class="btn btn-sm variant-filled-secondary" on:click={generateQuizes} disabled={loading}>
-        {#if loading}
-            <Fa icon={faSpinner} class="animate-spin"/>
-        {:else}
-            Generate quizes
-        {/if}
-    </button>
 
-    <!-- show/hide button -->
-    <button class="btn  variant-filled-tertiary" on:click={hideShow}>
-        {#if show}
-            Hide
-        {:else}
-            Show
-        {/if}
-    </button>
+    {#if withAI}
+        <!-- button AI generate -->
+        <button class="btn btn-sm variant-filled-secondary" on:click={generateQuizes} disabled={loading}>
+            {#if loading}
+                <Fa icon={faSpinner} class="animate-spin"/>
+            {:else}
+                Generate quizes
+            {/if}
+        </button>
+    {/if}
+
+
+    {#if quizes && quizes.length > 0}
+        <button class="btn  variant-filled-tertiary" on:click={hideShow}>
+            {#if show}
+                <Fa icon={faEyeSlash} />
+            {:else}
+                <Fa icon={faEye} />
+            {/if}
+        </button>
+    {/if}
 </div>
 
 

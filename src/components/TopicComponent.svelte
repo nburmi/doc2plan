@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { get } from 'svelte/store';
-    import { openaiStore  } from '../stores/openai';
     import TopicComponent from './TopicComponent.svelte';
     import Quizes from './Quizes.svelte';
     import { createEventDispatcher } from 'svelte';
@@ -11,6 +9,7 @@
 
     export let topic: Topic;
     export let chapterName: string;
+    export let withAI: boolean;
 
     let loading = false;
 
@@ -94,13 +93,11 @@
             updateTopic();
         }
     }
-
-    $: openAI = get(openaiStore).assistantId !== '';
 </script>
 
 
 <div class="flex flex-col min-w-full border border-surface-500 rounded-container-token p-4 space-y-4 ">
-    {#if openAI}
+    {#if withAI}
     <label class="label">
         <input class="input" type="text" placeholder="Path to content: Topic > Subtopic" bind:value={topic.path} on:change={updateTopic} required/>
     </label>
@@ -117,7 +114,7 @@
     </label>
 
     <!-- if with AI then show button regenerate -->
-    {#if openAI}
+    {#if withAI}
         <div>
             <button class="btn btn-sm variant-filled-secondary" on:click={generateContent} disabled={loading}>
                 {#if loading}
@@ -131,7 +128,13 @@
 
     <!-- quizes -->
     <h3>Quizes:</h3>
-    <Quizes topicContent={topic.content} topicPath={topic.path} chapterName={chapterName} quizes={topic.quizes} on:updateQuizes={handleUpdateQuizes}/>
+    <Quizes 
+    topicContent={topic.content} 
+    topicPath={topic.path} 
+    chapterName={chapterName} 
+    quizes={topic.quizes}
+    withAI={withAI}
+    on:updateQuizes={handleUpdateQuizes}/>
 
     <h3>Subtopics: </h3>
     <div class="flex">
@@ -153,7 +156,12 @@
                         </div>
                     </svelte:fragment>
                     <svelte:fragment slot="content">
-                        <TopicComponent chapterName={chapterName} topic={subtopic} on:deleteTopic={deleteSubtopic} on:updateTopic={updateSubtopic}/>
+                        <TopicComponent 
+                        chapterName={chapterName} 
+                        topic={subtopic} 
+                        withAI={withAI}
+                        on:deleteTopic={deleteSubtopic} 
+                        on:updateTopic={updateSubtopic}/>
                     </svelte:fragment>
                 </AccordionItem>
             {/each}

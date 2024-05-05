@@ -8,6 +8,7 @@
 
     export let topics: Topic[];
     export let chapter_id: number;
+    export let withAI: boolean;
 
     const addTopic = () => {
         let max_id = 0;
@@ -108,7 +109,12 @@
                     </div>
                 </svelte:fragment>
                 <svelte:fragment slot="content">
-                    <TopicComponent topic={topic} chapterName={getChapterName()} on:deleteTopic={handleDelete} on:updateTopic={handleUpdate}/>
+                    <TopicComponent 
+                    topic={topic} 
+                    chapterName={getChapterName()} 
+                    withAI={withAI}
+                    on:deleteTopic={handleDelete} 
+                    on:updateTopic={handleUpdate}/>
                 </svelte:fragment>
             </AccordionItem>
             {/each}
