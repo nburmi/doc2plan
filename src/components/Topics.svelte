@@ -20,8 +20,8 @@
             ...topics,
             {
                 id: max_id + 1,
-                path: '',
-                title: '',
+                path: `${chapter_id} > NEW TOPIC`,
+                title: 'NEW TOPIC',
                 content: '',
                 done: false,
                 children: [],

@@ -39,8 +39,8 @@
             ...topic.children,
             {
                 id: max_id + 1,
-                path: '',
-                title: '',
+                path: `${topic.path} > NEW TOPIC`,
+                title: 'NEW TOPIC',
                 content: '',
                 done: false,
                 children: [],
