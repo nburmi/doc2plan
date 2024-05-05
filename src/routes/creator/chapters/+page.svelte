@@ -9,27 +9,7 @@
     import { popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
     import { extractChapters as aiExtractChapters } from '$lib/openai';
-    import { initializeStores, Modal } from '@skeletonlabs/skeleton';
-    import AIModalForm from '$lib/components/AIModalForm.svelte';
-    import type { ModalSettings, ModalComponent } from '@skeletonlabs/skeleton';
-    import { getModalStore } from '@skeletonlabs/skeleton';
     import { goto } from '$app/navigation';
-
-
-    initializeStores();
-    const modalStore = getModalStore(); 
-
-    function modalComponentForm(): void {
-        const c: ModalComponent = { ref: AIModalForm };
-        const modal: ModalSettings = {
-            type: 'component',
-            component: c,
-            title: 'AI Content generator',
-            body: 'Complete the form to generate content.',
-            response: (r) => console.log('response:', r)
-        };
-        modalStore.trigger(modal);
-    }
 
 
     const withAI = get(openaiStore).assistantId !== '';
