@@ -213,7 +213,7 @@
 
 <SplitPane>
 	<div slot="left">
-		<div class="card space-y-4">
+		<div class="space-y-4">
 			<h1 class="card-header text-center">Plan: {plan.name}</h1>			
 			<RecursiveTreeView 
 			selection 
@@ -228,7 +228,7 @@
 		</div>
 	</div>
 	<div slot="right">
-		<div class="card container space-y-4 pl-4">
+		<div class="container space-y-4 p-4">
 			{#if currentChapter && !currentTopic}
 				<h1>{currentChapter.name}</h1>
 				{@html marked.parse(currentChapter.keyTopics ? currentChapter.keyTopics : '')}

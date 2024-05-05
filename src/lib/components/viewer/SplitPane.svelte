@@ -23,11 +23,11 @@
 </script>
 
 <div class="split-pane" on:mousemove={drag} on:mouseup={dragend}>
-    <div bind:this={left} class="left" style="flex-basis: {leftInitialSize}">
+    <div bind:this={left} class="left card" style="flex-basis: {leftInitialSize}">
         <slot name="left" />
     </div>
     <div class="splitter" on:mousedown={dragstart} role="separator" />
-    <div class="right">
+    <div class="right card">
         <slot name="right" />
     </div>
 </div>
