@@ -29,7 +29,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@floating-ui/dom": "^1.6.4",
+    "@floating-ui/dom": "^1.6.5",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "marked": "^12.0.2",
     "openai": "^4.38.2",
