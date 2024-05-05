@@ -32,7 +32,7 @@
     }
 
 
-    $: openAI = get(openaiStore).assistantId !== '';
+    const withAI = get(openaiStore).assistantId !== '';
     let chapters = get(planStore).chapters;
     let loading = false;
 
@@ -85,7 +85,7 @@
     <button type="button" class="btn btn-sm variant-filled" on:click={addChapter}>
         <Fa icon={faPlus} />
     </button>
-    {#if openAI}
+    {#if withAI}
         <button class="btn btn-sm variant-filled-secondary [&>*]:pointer-events-none"  on:click={extractChapters} use:popup={popupHover} disabled={loading}>
             {#if loading}
                 <Fa icon={faSpinner} class="animate-spin" />

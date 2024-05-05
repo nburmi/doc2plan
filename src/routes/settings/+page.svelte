@@ -71,6 +71,10 @@
             return value;
         });
 
+        if (data.assistantId === '') {
+            return;
+        }
+
         try {
             saved = Status.IN_PROGRESS;
             await updateAssistant()

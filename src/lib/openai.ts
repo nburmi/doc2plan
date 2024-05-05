@@ -93,6 +93,10 @@ export async function updateAssistant() {
         assistant_id: get(openaiStore).assistantId,
     }
 
+    if (!params.assistant_id) {
+        throw new Error("No assistant created");
+    }
+
     if (!params.file_id) {
         throw new Error("No file uploaded");
     }
@@ -103,8 +107,6 @@ export async function updateAssistant() {
             dangerouslyAllowBrowser: true
         }
     );
-
-    console.log('updating assistant', get(openaiStore).model);
 
     try {
         const response = await openai.beta.assistants.update(params.assistant_id, {
