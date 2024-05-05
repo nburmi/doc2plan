@@ -22,10 +22,11 @@
 	}
 </script>
 
-<div class="split-pane" on:mousemove={drag} on:mouseup={dragend}>
+<div class="split-pane" on:mousemove={drag} on:mouseup={dragend} role="presentation">
     <div bind:this={left} class="left card rounded-none" style="flex-basis: {leftInitialSize}">
         <slot name="left" />
     </div>
+	<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
     <div class="splitter" on:mousedown={dragstart} role="separator" />
     <div class="right card rounded-none">
         <slot name="right" />
