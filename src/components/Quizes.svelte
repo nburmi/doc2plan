@@ -78,6 +78,17 @@
         <Fa icon={faPlus} />
     </button>
 
+
+    {#if quizes && quizes.length > 0}
+        <button class="btn variant-filled" on:click={hideShow}>
+            {#if show}
+                <Fa icon={faEyeSlash} />
+            {:else}
+                <Fa icon={faEye} />
+            {/if}
+        </button>
+    {/if}
+
     {#if withAI}
         <!-- button AI generate -->
         <button class="btn btn-sm variant-filled-secondary" on:click={generateQuizes} disabled={loading}>
@@ -85,17 +96,6 @@
                 <Fa icon={faSpinner} class="animate-spin"/>
             {:else}
                 Generate quizes
-            {/if}
-        </button>
-    {/if}
-
-
-    {#if quizes && quizes.length > 0}
-        <button class="btn  variant-filled-tertiary" on:click={hideShow}>
-            {#if show}
-                <Fa icon={faEyeSlash} />
-            {:else}
-                <Fa icon={faEye} />
             {/if}
         </button>
     {/if}

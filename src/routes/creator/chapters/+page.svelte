@@ -122,6 +122,8 @@
     {/each}
 </Accordion>
 
+<!-- button back -->
+<button type="button" class="btn variant-filled" on:click={() => goto('/creator')}>Back</button>
 
 <!-- finish button which redirects to save -->
-<button type="button" class="btn variant-filled-primary" on:click={() => goto('/creator/save')}>Finish</button>
+<button type="button" class="btn variant-filled-primary" on:click={() => goto('/creator/save')}>Next</button>

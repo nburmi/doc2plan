@@ -3,6 +3,7 @@
     import { get } from 'svelte/store';
 	import { clearOpenAI } from '$lib/openai';
     import { clearPlanStore } from '$lib/plan';
+    import { goto } from '$app/navigation';
 
     let plan = get(planStore);
 
@@ -38,6 +39,9 @@
     <!-- total chapters -->
     <p>Total chapters: {plan.chapters.length}</p>
     
+
+    <button class="btn variant-filled" on:click={() => goto("/creator/chapters")}>Back</button>
+
     <!-- save as JSON to file -->
     <button class="btn variant-filled-primary" on:click={saveAsJSON}>Save as JSON</button>
 </div>
