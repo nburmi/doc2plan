@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { openaiStore } from '../stores/openai';
+    import { openaiStore } from '../../stores/openai';
     import { get } from 'svelte/store';
     import Topics from './Topics.svelte';
     import { extractKeyTopics, parseKeyTopics as aiParseKeyTopics } from '$lib/openai';

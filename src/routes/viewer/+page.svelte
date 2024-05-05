@@ -5,8 +5,8 @@
 	import { get } from 'svelte/store';
     import * as marked from 'marked';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	import TreeViewNodeContent from '$lib/components/viewer/TreeViewNodeContent.svelte';
-	import SplitPane from "$lib/components/viewer/SplitPane.svelte";
+	import TreeViewNodeContent from '../../components/viewer/TreeViewNodeContent.svelte';
+	import SplitPane from "../../components/viewer/SplitPane.svelte";
 
 
 	const plan = get(planStore);

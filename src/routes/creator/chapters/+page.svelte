@@ -2,7 +2,7 @@
     import { openaiStore } from '../../../stores/openai';
     import { get } from 'svelte/store';
     import { planStore } from '../../../stores/plan';
-    import Chapter from '../../../components/Chapter.svelte';
+    import Chapter from '../../../components/creator/Chapter.svelte';
     import Fa from 'svelte-fa'
     import { faPlus, faTrash, faWandMagicSparkles, faSpinner } from '@fortawesome/free-solid-svg-icons'
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';

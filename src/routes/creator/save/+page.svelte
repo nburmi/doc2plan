@@ -1,7 +1,6 @@
 <script lang="ts">
     import { planStore } from '../../../stores/plan';
     import { get } from 'svelte/store';
-	import { clearOpenAI } from '$lib/openai';
     import { clearPlanStore } from '$lib/plan';
     import { goto } from '$app/navigation';
 

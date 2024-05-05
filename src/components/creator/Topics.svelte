@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { planStore } from '../stores/plan';
+    import { planStore } from '../../stores/plan';
     import { get } from 'svelte/store';
     import TopicComponent from './TopicComponent.svelte';
     import { Fa } from 'svelte-fa';
