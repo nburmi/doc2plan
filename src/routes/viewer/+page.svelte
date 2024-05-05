@@ -13,6 +13,7 @@
 	let checkedNodes : string[] = [];
 	let indeterminateNodes: string[] = [];
 	let chapters = chaptersToTree(plan.chapters);
+	
 	function chaptersToTree(chapters: Chapter[]): TreeViewNode[] {
 		let items: TreeViewNode[] = [];
 

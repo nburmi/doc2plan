@@ -98,9 +98,6 @@
             <p>AI: extract chapters</p>
             <div class="arrow variant-filled-secondary" />
         </div>
-
-        <!-- <button class="btn btn-sm variant-filled-secondary" on:click={modalComponentForm}>AI</button>
-        <Modal /> -->
     {/if}
 </div>
 
