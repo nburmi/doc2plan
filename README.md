@@ -31,7 +31,7 @@ For the AI-driven features, you will need an OpenAI API key.
 
 ### Installation
 
-No installation necessary! Just navigate to [insert your project's URL here] to start using the application.
+No installation necessary! Just navigate to [ihaveaplan.app](ihaveaplan.app) to start using the application.
 
 ### Configuration
 
