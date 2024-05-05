@@ -10,6 +10,7 @@
     import type { PopupSettings } from '@skeletonlabs/skeleton';
     import { extractChapters as aiExtractChapters } from '$lib/openai';
     import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
 
 
     const withAI = get(openaiStore).assistantId !== '';
@@ -101,13 +102,13 @@
 
 <div class="flex space-x-1 mt-4">
     <!-- button back -->
-    <button type="button" class="btn variant-filled" on:click={() => goto('/creator')}>
+    <button type="button" class="btn variant-filled" on:click={() => goto(`${base}/creator`)}>
         <Fa icon={faArrowLeft} />
         <p class="ml-1px">Back</p>
     </button>
 
     <!-- finish button which redirects to save -->
-    <button type="button" class="btn variant-filled-primary" on:click={() => goto('/creator/save')}>
+    <button type="button" class="btn variant-filled-primary" on:click={() => goto(`${base}/creator/save`)}>
         <p class="mr-1px">Next</p>
         <Fa icon={faArrowRight}/>
     </button>

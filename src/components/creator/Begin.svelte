@@ -7,6 +7,7 @@
 	import { goto } from '$app/navigation';
 	import Fa from 'svelte-fa';
 	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+	import { base } from '$app/paths';
 	
 
 	let data = {
@@ -37,7 +38,7 @@
 			store.assistantId = data.createdOpenAI ? store.assistantId : '';
 			return store;
 		});
-		goto('/creator/chapters');
+		goto(`${base}/creator/chapters`);
 	};
 
 

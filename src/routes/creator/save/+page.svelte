@@ -3,6 +3,7 @@
     import { get } from 'svelte/store';
     import { clearPlanStore, isPlanEmpty } from '$lib/plan';
     import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
 
     let plan = get(planStore);
 
@@ -43,7 +44,7 @@
     
     <p>Start learning now using Viewer mode.</p>
     <div>
-        <button class="btn variant-filled-primary" on:click={() => goto("/viewer")} disabled={resetted}>Start learning</button>
+        <button class="btn variant-filled-primary" on:click={() => goto(`${base}/viewer`)} disabled={resetted}>Start learning</button>
     </div>
 
     <p>
@@ -60,7 +61,7 @@
     </div>
 
     <div>
-        <button class="btn variant-filled" on:click={() => goto("/creator/chapters")}>Back</button>
+        <button class="btn variant-filled" on:click={() => goto(`${base}/creator/chapters`)}>Back</button>
     </div>
 </div>
 
