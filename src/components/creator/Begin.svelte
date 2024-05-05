@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	import { isValidApiKey, clearOpenAI, clearEverything, createAssistant, uploadFile } from '$lib/openai';
-	import { openaiStore } from '../stores/openai';
-	import { planStore } from '../stores/plan';
+	import { isValidApiKey, clearOpenAI, createAssistant, uploadFile } from '$lib/openai';
+	import { openaiStore } from '../../stores/openai';
+	import { planStore } from '../../stores/plan';
 	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	
