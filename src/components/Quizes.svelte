@@ -17,10 +17,16 @@
     const addQuiz = () => {
         if (!quizes) quizes = [];
 
+        // get biggest id from quizes
+        let max_id = 0;
+        quizes.forEach((q) => {
+            if (q.id > max_id) max_id = q.id;
+        });
+
         quizes = [
             ...quizes,
             {
-                id: quizes.length + 1,
+                id: max_id + 1,
                 question: '',
                 answer: '',
                 done: false

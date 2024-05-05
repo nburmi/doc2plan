@@ -31,10 +31,15 @@
             topic.children = [];
         }
 
+        let max_id = 0;
+        topic.children.forEach((t) => {
+            if (t.id > max_id) max_id = t.id;
+        });
+
         topic.children = [
             ...topic.children,
             {
-                id: topic.children.length + 1,
+                id: max_id + 1,
                 path: '',
                 title: '',
                 content: '',

@@ -10,10 +10,15 @@
     export let chapter_id: number;
 
     const addTopic = () => {
+        let max_id = 0;
+        topics.forEach((t) => {
+            if (t.id > max_id) max_id = t.id;
+        });
+
         topics = [
             ...topics,
             {
-                id: topics.length + 1,
+                id: max_id + 1,
                 path: '',
                 title: '',
                 content: '',
@@ -60,7 +65,7 @@
         return chapter ? chapter.name : '';
     }
 
-    const handleUpdate = (event: CustomEvent) => {        
+    const handleUpdate = (event: CustomEvent) => {      
         const id = Number(event.detail.id);
         const topic = event.detail.topic;
 
