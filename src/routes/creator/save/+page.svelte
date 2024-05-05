@@ -1,7 +1,7 @@
 <script lang="ts">
     import { planStore } from '../../../stores/plan';
     import { get } from 'svelte/store';
-    import { clearPlanStore } from '$lib/plan';
+    import { clearPlanStore, isPlanEmpty } from '$lib/plan';
     import { goto } from '$app/navigation';
 
     let plan = get(planStore);
@@ -20,27 +20,47 @@
         }
     }
 
+    let resetted = isPlanEmpty();
     function clear() {
         clearPlanStore();
+        resetted = isPlanEmpty();
     }
 </script>
 
-<h1>
-    You are on the save page
-</h1>
-
-<h2>Clear</h2>
-<!-- button to clear -->
-<button class="btn variant-filled-error" on:click={clear}>Reset plan</button>
-
-<div>
-    <h2>{plan.name}</h2>
-    <!-- total chapters -->
-    <p>Total chapters: {plan.chapters.length}</p>
+<div class="flex flex-col justify-between space-y-4">
+    <h1>Finished plan "{plan.name}"</h1>
+    <h2>
+        Congratulations! You have finished creating your plan.
+    </h2>
     
+    <p>You can save your plan as a JSON file to load it later or just to keep a backup.</p>
+    <div>
+        <button class="btn variant-filled" on:click={saveAsJSON} disabled={resetted}>Save as JSON</button>
+    </div>
+    
+    
+    <h2>What's next?</h2>
+    
+    <p>Start learning now using Viewer mode.</p>
+    <div>
+        <button class="btn variant-filled-primary" on:click={() => goto("/viewer")} disabled={resetted}>Start learning</button>
+    </div>
 
-    <button class="btn variant-filled" on:click={() => goto("/creator/chapters")}>Back</button>
+    <p>
+        Or you can reset the plan to create a new one.
+        Do it only if you are sure you want to discard the current plan.
+    </p>
+    <div>
+        <button class="btn variant-filled-error" on:click={clear} disabled={resetted}>Reset plan</button>
+    </div>
 
-    <!-- save as JSON to file -->
-    <button class="btn variant-filled-primary" on:click={saveAsJSON}>Save as JSON</button>
+    <div>
+        <p>If you want to make changes to the plan, you can go back to the chapters page.</p>
+        <p>You can also come back and edit the plan later.</p>
+    </div>
+
+    <div>
+        <button class="btn variant-filled" on:click={() => goto("/creator/chapters")}>Back</button>
+    </div>
 </div>
+

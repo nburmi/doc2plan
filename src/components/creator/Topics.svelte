@@ -96,7 +96,7 @@
     </div>
 
 
-    <div class="flex flex-col items-start min-w-full">
+    <div class="flex flex-col items-start min-w-full mt-4">
         <Accordion>
             {#each topics as topic}
             <AccordionItem>

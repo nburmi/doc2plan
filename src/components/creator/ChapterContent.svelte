@@ -59,7 +59,7 @@
         {/if}
     {/if}
 
-    <div class="flex">
+    <div class="flex mt-4">
         {#if chapter}
             <Topics topics={chapter.topics} chapter_id={chapter.id} withAI={withAI}/>
         {/if}

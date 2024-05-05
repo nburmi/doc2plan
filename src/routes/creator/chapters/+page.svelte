@@ -4,7 +4,7 @@
     import { planStore } from '../../../stores/plan';
     import Chapter from '../../../components/creator/Chapter.svelte';
     import Fa from 'svelte-fa'
-    import { faPlus, faTrash, faWandMagicSparkles, faSpinner } from '@fortawesome/free-solid-svg-icons'
+    import { faPlus, faTrash, faWandMagicSparkles, faSpinner, faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
     import { popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
@@ -60,8 +60,8 @@
 </script>
 
 
-<div class="flex">
-    <h1 class="text-2xl font-bold">Chapters to cover:</h1>
+<div class="flex pb-4">
+    <h1 class="text-2xl font-bold mr-1">Chapters to cover:</h1>
     <button type="button" class="btn btn-sm variant-filled" on:click={addChapter}>
         <Fa icon={faPlus} />
     </button>
@@ -75,7 +75,7 @@
         </button>
 
         <div class="card p-4 variant-filled-secondary" data-popup="popupHover">
-            <p>AI: extract chapters</p>
+            <p>AI: extract and override chapters</p>
             <div class="arrow variant-filled-secondary" />
         </div>
     {/if}
@@ -99,8 +99,17 @@
     {/each}
 </Accordion>
 
-<!-- button back -->
-<button type="button" class="btn variant-filled" on:click={() => goto('/creator')}>Back</button>
+<div class="flex space-x-1 mt-4">
+    <!-- button back -->
+    <button type="button" class="btn variant-filled" on:click={() => goto('/creator')}>
+        <Fa icon={faArrowLeft} />
+        <p class="ml-1px">Back</p>
+    </button>
 
-<!-- finish button which redirects to save -->
-<button type="button" class="btn variant-filled-primary" on:click={() => goto('/creator/save')}>Next</button>
+    <!-- finish button which redirects to save -->
+    <button type="button" class="btn variant-filled-primary" on:click={() => goto('/creator/save')}>
+        <p class="mr-1px">Next</p>
+        <Fa icon={faArrowRight}/>
+    </button>
+</div>
+

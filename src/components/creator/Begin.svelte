@@ -5,6 +5,8 @@
 	import { planStore } from '../../stores/plan';
 	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
+	import Fa from 'svelte-fa';
+	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 	
 
 	let data = {
@@ -276,5 +278,7 @@
 	{/if}
 </div>
 
-<button class="btn variant-filled-primary mt-4" disabled={data.locked} on:click={next}>Next</button>
+<button class="btn variant-filled-primary mt-4" disabled={data.locked} on:click={next}>
+	<p class="mr-1px">Next</p><Fa icon={faArrowRight} /> 
+</button>
 	

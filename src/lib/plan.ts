@@ -22,3 +22,8 @@ export function clearPlanStore() {
         chapters: [],
     });
 }
+
+export function isPlanEmpty() {
+    const plan = get(planStore);
+    return plan.chapters.length === 0 && plan.name === '';
+}
