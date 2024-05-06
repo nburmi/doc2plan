@@ -162,7 +162,7 @@ export async function uploadFile(file: File) {
             file_ids: [response.id],
             expires_after: {
                 anchor: 'last_active_at',
-                days: 1,
+                days: 30,
             }
         });
 
