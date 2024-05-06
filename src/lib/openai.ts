@@ -665,7 +665,7 @@ export async function generateQuizes(chapter: string, path: string, content: str
 
 function parseQuestions(questions: string): Quiz[] {
     const lines = questions.split('\n');
-    const quizes: Quiz[] = [];
+    const quizzes: Quiz[] = [];
     let question = '';
     let answer = '';
     let isQuestion = true;
@@ -673,8 +673,8 @@ function parseQuestions(questions: string): Quiz[] {
     for (const line of lines) {
         if (line.startsWith('Question:')) {
             if (question) {
-                quizes.push({
-                    id: quizes.length + 1,
+                quizzes.push({
+                    id: quizzes.length + 1,
                     question: question,
                     answer: answer,
                     done: false,
@@ -696,13 +696,13 @@ function parseQuestions(questions: string): Quiz[] {
     }
 
     if (question) {
-        quizes.push({
-            id: quizes.length + 1,
+        quizzes.push({
+            id: quizzes.length + 1,
             question: question,
             answer: answer,
             done: false,
         });
     }
 
-    return quizes;
+    return quizzes;
 }

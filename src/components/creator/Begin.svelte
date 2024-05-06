@@ -244,12 +244,11 @@
 				<svelte:fragment slot="summary">How your OpenAI token will be used</svelte:fragment>
 				<svelte:fragment slot="content">
 					<ul>
-						<li>token stored in your browser</li>
-						<li>token will be used to access the OpenAI api</li>
-						<li>programm will create assistant in openAI</li>
-						<li>Upload your documents to openAI</li>
-						<li>Create learning plan from your documents using openAI</li>
-						<li>You will see the progress and can edit the plan during the process</li>
+						<li>The token is stored in your browser.</li>
+						<li>The token will be used to access the OpenAI API.</li>
+						<li>The program will create an assistant in OpenAI.</li>
+						<li>Upload your documents to OpenAI.</li>
+						<li>Create a learning plan from your documents using OpenAI.</li>
 					</ul>
 				</svelte:fragment>
 			</AccordionItem>

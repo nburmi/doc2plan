@@ -25,7 +25,7 @@
                 content: '',
                 done: false,
                 children: [],
-                quizes: []
+                quizzes: []
             }
         ];
 

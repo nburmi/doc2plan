@@ -240,10 +240,10 @@
 				{@html marked.parse(currentTopic.content ? currentTopic.content : '')}
 	
 	
-				{#if currentTopic.quizes}
+				{#if currentTopic.quizzes}
 					<h2>Quizes</h2>
 					<Accordion>
-						{#each currentTopic.quizes as quiz}
+						{#each currentTopic.quizzes as quiz}
 							<AccordionItem>
 								<svelte:fragment slot="summary">{quiz.question}</svelte:fragment>
 								<svelte:fragment slot="content">

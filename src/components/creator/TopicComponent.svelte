@@ -44,13 +44,13 @@
                 content: '',
                 done: false,
                 children: [],
-                quizes: []
+                quizzes: []
             }
         ];
     }
 
     const handleUpdateQuizes = (event: CustomEvent) => {
-        topic.quizes = event.detail.quizes;
+        topic.quizzes = event.detail.quizzes;
         updateTopic();
     }
 
@@ -126,13 +126,13 @@
         </div>
     {/if}
 
-    <!-- quizes -->
+    <!-- quizzes -->
     <h3>Quizes:</h3>
     <Quizes 
     topicContent={topic.content} 
     topicPath={topic.path} 
     chapterName={chapterName} 
-    quizes={topic.quizes}
+    quizzes={topic.quizzes}
     withAI={withAI}
     on:updateQuizes={handleUpdateQuizes}/>
 

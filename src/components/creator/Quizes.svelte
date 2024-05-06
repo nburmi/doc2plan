@@ -5,7 +5,7 @@
     import { faPlus, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
     import { generateQuizes as aiGenerateQuizes } from '$lib/openai';
 
-    export let quizes: Quiz[] | undefined;
+    export let quizzes: Quiz[] | undefined;
     export let chapterName: string;
     export let topicPath: string;
     export let topicContent: string | undefined;
@@ -16,16 +16,16 @@
 
     const dispatch = createEventDispatcher();
     const addQuiz = () => {
-        if (!quizes) quizes = [];
+        if (!quizzes) quizzes = [];
 
-        // get biggest id from quizes
+        // get biggest id from quizzes
         let max_id = 0;
-        quizes.forEach((q) => {
+        quizzes.forEach((q) => {
             if (q.id > max_id) max_id = q.id;
         });
 
-        quizes = [
-            ...quizes,
+        quizzes = [
+            ...quizzes,
             {
                 id: max_id + 1,
                 question: '',
@@ -34,31 +34,31 @@
             }
         ];
 
-        dispatch('updateQuizes', {quizes});
+        dispatch('updateQuizes', {quizzes});
     }
 
     const handleDelete = (event: CustomEvent) => {
-        if (!quizes) return;
+        if (!quizzes) return;
 
-        quizes = quizes.filter((q) => q.id !== event.detail.id);
-        dispatch('updateQuizes', {quizes});
+        quizzes = quizzes.filter((q) => q.id !== event.detail.id);
+        dispatch('updateQuizes', {quizzes});
     }
 
     const handleUpdate = (event: CustomEvent) => {
-        if (!quizes) return;
+        if (!quizzes) return;
 
-        const index = quizes.findIndex((q) => q.id === event.detail.id);
+        const index = quizzes.findIndex((q) => q.id === event.detail.id);
         if (index === -1) return;
 
-        quizes[index] = event.detail.quiz;
-        dispatch('updateQuizes', {quizes});
+        quizzes[index] = event.detail.quiz;
+        dispatch('updateQuizes', {quizzes});
     }
 
     async function generateQuizes () {
         loading = true;
         try {
-            quizes = await aiGenerateQuizes(chapterName, topicPath, topicContent || '');
-            dispatch('updateQuizes', {quizes});
+            quizzes = await aiGenerateQuizes(chapterName, topicPath, topicContent || '');
+            dispatch('updateQuizes', {quizzes});
         } catch (error) {
             console.error(error);
         } finally {
@@ -79,7 +79,7 @@
     </button>
 
 
-    {#if quizes && quizes.length > 0}
+    {#if quizzes && quizzes.length > 0}
         <button class="btn variant-filled" on:click={hideShow}>
             {#if show}
                 <Fa icon={faEyeSlash} />
@@ -95,7 +95,7 @@
             {#if loading}
                 <Fa icon={faSpinner} class="animate-spin"/>
             {:else}
-                Generate quizes
+                Generate quizzes
             {/if}
         </button>
     {/if}
@@ -104,8 +104,8 @@
 
 
 
-{#if quizes && show}
-    {#each quizes as quiz}
+{#if quizzes && show}
+    {#each quizzes as quiz}
         <QuizComponent {quiz} on:deleteQuiz={handleDelete} on:updateQuiz={handleUpdate}/>
     {/each}
 {/if}

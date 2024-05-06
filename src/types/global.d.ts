@@ -19,7 +19,7 @@ declare global {
         children?: Topic[];
         parent_id ?: number;
         content?: string;
-        quizes?: Quiz[];
+        quizzes?: Quiz[];
         done: boolean;
     }
     
