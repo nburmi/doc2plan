@@ -22,7 +22,7 @@
 <AppShell>
 	<svelte:fragment slot="header">
 		<!-- App Bar -->
-		<AppBar>
+		<AppBar class="h-50px">
 			<svelte:fragment slot="lead">
 				<span class="h2 bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">doc2plan</span>
 			</svelte:fragment>

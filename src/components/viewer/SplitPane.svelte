@@ -57,13 +57,13 @@
 		flex-grow: 0;
 		flex-shrink: 0;
 		overflow: auto;
-    	height: 91.5vh;
+		height: calc(100vh - 74px);
 	}
 
 	.right {
 		flex-grow: 1;
 		flex-shrink: 1;
 		overflow: auto;
-		min-height: 91.5vh;
+		height: calc(100vh - 74px);
 	}
 </style>
