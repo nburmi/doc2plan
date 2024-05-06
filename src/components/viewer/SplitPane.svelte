@@ -56,11 +56,14 @@
 	.left {
 		flex-grow: 0;
 		flex-shrink: 0;
+		overflow: auto;
+    	height: 91.5vh;
 	}
 
 	.right {
 		flex-grow: 1;
 		flex-shrink: 1;
-		overflow-x: auto;
+		overflow: auto;
+		min-height: 91.5vh;
 	}
 </style>

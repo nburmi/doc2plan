@@ -24,9 +24,7 @@
 		<!-- App Bar -->
 		<AppBar>
 			<svelte:fragment slot="lead">
-				<h3 class="h1">
-					<span class="bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">ihaveaplan</span>
-				</h3>
+				<span class="h2 bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">doc2plan</span>
 			</svelte:fragment>
 			<svelte:fragment slot="default">
 				<div class="flex items-center space-x-4">
