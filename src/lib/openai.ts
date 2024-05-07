@@ -222,16 +222,6 @@ export async function clearEverything() {
             await openai.files.del(file.id);
         }
 
-        // todo delete threads
-        // const threadID = get(openaiStore).threadId;
-        // if (threadID) {
-        //     await openai.beta.threads.del(threadID);
-        //     openaiStore.update(value => {
-        //         value.threadId = '';
-        //         return value;
-        //     });
-        // }
-
         let done = false;
 
         let vectorStores = await openai.beta.vectorStores.list();
@@ -434,59 +424,8 @@ export async function extractKeyTopics(path: string) {
     }
 }
 
-// recursive function to find parent topic by id with children
-function findParentTopic(topics: Topic[], parent_id: number): Topic | undefined {
-    for (const topic of topics) {
-        if (topic.id === parent_id) {
-            return topic;
-        }
-
-        if (topic.children) {
-            const parent = findParentTopic(topic.children, parent_id);
-            if (parent) {
-                return parent;
-            }
-        }
-    }
-
-    return undefined;
-}
-
 export function parseKeyTopics(keyTopics: string): Topic[] {
     const topics = parseNumberedList(keyTopics);
-    // console.log(topics);
-
-    // const format = (t: Topic) => {
-    //     if (!t) {
-    //         return '';
-    //     }
-
-    //     if (!t.parent_id) {
-    //         return `${t.title}`;
-    //     }
-
-    //     let stack = [];
-    //     let parent: number | undefined = t.parent_id;
-    //     while (parent) {
-    //         let p = findParentTopic(topics, parent);
-    //         if (!p) {
-    //             break;
-    //         }
-
-    //         stack.push(p.title);
-    //         parent = p.parent_id;
-    //     }
-
-    //     return `${stack.reverse().join(' > ')} > ${t.title}`;
-    // }
-
-    // go through all topics and printTopic
-    // for (let i = 0; i < topics.length; i++) {
-    //     const topic = topics[i];
-    //     // topic.path = format(topic);
-    //     topics[i] = topic;
-    // }
-
     return topics;
 }
 
