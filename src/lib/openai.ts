@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { openaiStore } from "../stores/openai";
 import { get } from 'svelte/store'
+import { NotFoundError } from "openai";
 
 
 // return true if the api key is valid
@@ -175,7 +176,6 @@ export async function uploadFile(file: File) {
         throw new Error(`Error uploading file: ${error}`);
     }
 }
-
 export async function clearOpenAI({ assistantId, fileId, vectorStoreId 
 }: { assistantId?: string, fileId?: string, vectorStoreId?: string}
 ) {
@@ -186,10 +186,22 @@ export async function clearOpenAI({ assistantId, fileId, vectorStoreId
         }
     );
 
+    const deleteResource = async (resource: string, delFunction: Function) => {
+        if (resource) {
+            try {
+                await delFunction(resource);
+            } catch (error: any) {
+                if (!(error instanceof NotFoundError)) {
+                    throw new Error(`Error deleting ${resource}: ${error}`);
+                }
+            }
+        }
+    };
+
     try {
-        if (assistantId) await openai.beta.assistants.del(assistantId);
-        if (vectorStoreId) await openai.beta.vectorStores.del(vectorStoreId);
-        if (fileId) await openai.files.del(fileId);
+        if (assistantId) await deleteResource(assistantId, openai.beta.assistants.del.bind(openai.beta.assistants));
+        if (vectorStoreId) await deleteResource(vectorStoreId, openai.beta.vectorStores.del.bind(openai.beta.vectorStores));
+        if (fileId) await deleteResource(fileId, openai.files.del.bind(openai.files));
 
         openaiStore.update(value => {
             value.assistantId = '';
@@ -198,7 +210,7 @@ export async function clearOpenAI({ assistantId, fileId, vectorStoreId
             return value;
         });
     } catch (error) {
-        throw new Error(`Error clearing: ${error}`);
+        throw new Error(`Error clearing OpenAI resources: ${error}`);
     }
 }
 
