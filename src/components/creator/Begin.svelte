@@ -229,9 +229,9 @@
 
 
 		<div class="input-group input-group-divider grid-cols-[1fr_auto]">
-            <input type="text" placeholder="OpenAI api key" bind:value={data.apiKey} class="{data.showPassword ? '' : 'hidden'}" />
-            <input type="password" placeholder="OpenAI api key" bind:value={data.apiKey} class="{data.showPassword ? 'hidden' : ''}" />
-            <button class="variant-filled-secondary" on:change={validateToken} on:click={() => data.showPassword = !data.showPassword}>
+            <input type="text" placeholder="OpenAI api key" on:change={validateToken} bind:value={data.apiKey} class="{data.showPassword ? '' : 'hidden'}" />
+            <input type="password" on:change={validateToken} placeholder="OpenAI api key" bind:value={data.apiKey} class="{data.showPassword ? 'hidden' : ''}" />
+            <button class="variant-filled-secondary" on:click={() => data.showPassword = !data.showPassword}>
                 <Fa icon={data.showPassword ? faEyeSlash : faEye} />
             </button>
         </div>
