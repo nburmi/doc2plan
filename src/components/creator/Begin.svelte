@@ -63,15 +63,19 @@
 		const text = button.innerHTML;
 		loadingButton(e, 'Clearing');
 
-		await clearOpenAI(
-			{
-				assistantId: get(openaiStore).assistantId,
-				fileId: get(openaiStore).fileId,
-				vectorStoreId: get(openaiStore).vectorStoreId,
-			}
-		);
-
-		normalButton(e, text);
+		try {
+			await clearOpenAI(
+				{
+					assistantId: get(openaiStore).assistantId,
+					fileId: get(openaiStore).fileId,
+					vectorStoreId: get(openaiStore).vectorStoreId,
+				}
+			);
+		} catch (err: any) {
+			data.errorMsg = `${err}`;
+		} finally {
+			normalButton(e, text);
+		}
 
 		// show the button
 		data.createdOpenAI = get(openaiStore).assistantId !== '';
