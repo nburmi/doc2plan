@@ -7,6 +7,10 @@ This project is under development.
 
 This project is a browser-based application designed to create personalized and structured learning plans by extracting content from documents and allowing users to interactively go through their plan. It features two main components: the **Creator** and the **Viewer**.
 
+### Demo Video
+
+[![demo video](https://img.youtube.com/vi/ZdKwm1-B6Ks/maxresdefault.jpg)](https://youtu.be/ZdKwm1-B6Ks)
+
 ### Creator
 
 **Important note: AI sometimes hallucinates and generates incorrect information. Please verify the generated content before using it for learning purposes.**
