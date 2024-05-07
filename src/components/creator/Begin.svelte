@@ -6,7 +6,7 @@
 	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	import Fa from 'svelte-fa';
-	import { faArrowRight, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons';
+	import { faArrowRight, faEyeSlash, faEye, faSpinner } from '@fortawesome/free-solid-svg-icons';
 	import { base } from '$app/paths';
 	
 	let data = {
@@ -42,26 +42,10 @@
 	};
 
 
-	// function which changes text in button to loading with dots animation
-	function loadingButton(e: Event, text: string = 'Loading') {
-		const button = e.target as HTMLButtonElement;
-		button.disabled = true;
+	let clearing = false;
 
-		// fa icon spinner into HTML
-		button.innerHTML = `${text}`;
-	}
-
-	// function which changes loadingButton back to normal
-	function normalButton(e: Event, text: string) {
-		const button = e.target as HTMLButtonElement;
-		button.disabled = false;
-		button.innerHTML = text;
-	}
-
-	async function clear(e: Event) {
-		const button = e.target as HTMLButtonElement;
-		const text = button.innerHTML;
-		loadingButton(e, 'Clearing');
+	async function clear() {
+		clearing = true;
 
 		try {
 			await clearOpenAI(
@@ -74,34 +58,40 @@
 		} catch (err: any) {
 			data.errorMsg = `${err}`;
 		} finally {
-			normalButton(e, text);
+			clearing = false;
 		}
 
 		// show the button
 		data.createdOpenAI = get(openaiStore).assistantId !== '';
 	}
 
-	async function createOpenAI(e: Event) {
-		try {
-			const button = e.target as HTMLButtonElement;
-			const text = button.innerHTML;
-			loadingButton(e, 'File uploading');
+	let creating = false;
+	let creatingMessage = 'Create assistant';
 
+	async function createOpenAI() {
+		const message = creatingMessage;
+
+		try {
+			creating = true;
+			
 			if (!files) {
 				data.errorMsg = 'No files selected';
-				normalButton(e, text);
 				return;
 			}
 
+			creatingMessage = 'Uploading file';
 			await uploadFile(files[0]);
-			loadingButton(e, 'Creating assistant');
+			
+			creatingMessage = 'Creating assistant';
 			await createAssistant();
-			normalButton(e, text);
+			
 			data.createdOpenAI = true;
 		} catch (err: any) {
 			data.errorMsg = `${err}`;
+			console.error(err);
 		} finally {
-			normalButton(e, 'Create assistant');
+			creating = false;
+			creatingMessage = message;
 		}
 	}
 
@@ -226,8 +216,12 @@
 			You can clear it and create a new one (assistant).
 		</h2>
 		<div>
-			<button class="btn variant-filled-error" on:click={clear} disabled={!data.createdOpenAI}>
-				Clear OpenAI
+			<button class="btn variant-filled-error" on:click={clear} disabled={!data.createdOpenAI || clearing}>
+				{#if clearing}
+					<Fa icon={faSpinner} spin />
+				{:else}
+					Clear OpenAI
+				{/if}
 			</button>
 		</div>
 
@@ -282,12 +276,16 @@
 		</ul>
 			
 		<div>
-			<button class="btn variant-filled {data.canCreateOpenAI ? '': 'hidden'}" on:click={createOpenAI}>Create OpenAI</button>
+			<button class="btn variant-filled {data.canCreateOpenAI ? '': 'hidden'}" on:click={createOpenAI} disabled={creating}>
+				{#if creating}
+					<Fa icon={faSpinner} spin /> 
+				{/if}
+				{creatingMessage}
+			</button>
 		</div>
 	{/if}
 </div>
 
-<button class="btn variant-filled-primary mt-4" disabled={data.locked} on:click={next}>
+<button class="btn variant-filled-primary mt-4" disabled={data.locked } on:click={next}>
 	<p class="mr-1px">Next</p><Fa icon={faArrowRight} /> 
 </button>
-	
