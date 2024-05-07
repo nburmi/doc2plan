@@ -53,7 +53,7 @@
 
         {#if chapter.keyTopics && chapter.keyTopics.length > 0}
             <!-- button parse to topics -->
-            <button class="btn btn-sm variant-filled-secondary" on:click={parseKeyTopics} disabled={loading}>
+            <button class="btn btn-sm variant-filled" on:click={parseKeyTopics} disabled={loading}>
                 Create topics from key topics
             </button>
         {/if}
