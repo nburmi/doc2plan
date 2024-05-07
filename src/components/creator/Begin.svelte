@@ -6,9 +6,10 @@
 	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	import Fa from 'svelte-fa';
-	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+	import { faArrowRight, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons';
 	import { base } from '$app/paths';
 	
+	let showPassword = false;
 
 	let data = {
 		planName: get(planStore).name,
@@ -227,10 +228,15 @@
 			</button>
 		</div>
 
-		<label class="label">
-			<span>OpenAI API token</span>
-			<input id="token" bind:value={data.token} on:change={validateToken} class="input" type="text" placeholder="Enter your openAI token here" />
-		</label>
+
+		<div class="input-group input-group-divider grid-cols-[1fr_auto]">
+            <input type="text" placeholder="OpenAI api key" bind:value={data.token} class="{showPassword ? '' : 'hidden'}" />
+            <input type="password" placeholder="OpenAI api key" bind:value={data.token} class="{showPassword ? 'hidden' : ''}" />
+            <button class="variant-filled-secondary" on:change={validateToken} on:click={() => showPassword = !showPassword}>
+                <Fa icon={showPassword ? faEyeSlash : faEye} />
+            </button>
+        </div>
+
 		<Accordion>
 			<AccordionItem>
 				<svelte:fragment slot="summary">How to get OpenAI token</svelte:fragment>
