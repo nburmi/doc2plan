@@ -9,7 +9,7 @@ This project is a browser-based application designed to create personalized and 
 
 ### Demo Video
 
-[![demo video](https://img.youtube.com/vi/ZdKwm1-B6Ks/maxresdefault.jpg)](https://youtu.be/ZdKwm1-B6Ks)
+[![demo video](https://img.youtube.com/vi/ZdKwm1-B6Ks/maxresdefault.jpg)](https://youtu.be/ZdKwm1-B6Ks?feature=shared)
 
 ### Creator
 
