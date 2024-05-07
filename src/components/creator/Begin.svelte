@@ -9,23 +9,22 @@
 	import { faArrowRight, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons';
 	import { base } from '$app/paths';
 	
-	let showPassword = false;
-
 	let data = {
 		planName: get(planStore).name,
 		withAI: get(openaiStore).assistantId !== '',
-		token: get(openaiStore).apiKey,
+		apiKey: get(openaiStore).apiKey,
 		locked: false,
-		tokenInvalid: true,
+		apiKeyInvalid: true,
 		errorMsg: '',
 		createdOpenAI: false,
 		canCreateOpenAI: false,
+		showPassword: false,
 	};
     let files: FileList;
 	validateToken();
 
 	openaiStore.subscribe((store) => {
-		data.token = store.apiKey;
+		data.apiKey = store.apiKey;
 		data.createdOpenAI = store.assistantId !== '';
 	});
 
@@ -35,7 +34,7 @@
 			return store;
 		});
 		openaiStore.update((store) => {
-			store.apiKey = data.token;
+			store.apiKey = data.apiKey;
 			store.assistantId = data.createdOpenAI ? store.assistantId : '';
 			return store;
 		});
@@ -98,20 +97,20 @@
 		} catch (err: any) {
 			data.errorMsg = `${err}`;
 		} finally {
-			normalButton(e, 'Create OpenAI');
+			normalButton(e, 'Create assistant');
 		}
 	}
 
 	async function validateToken() {
-		if (data.token.length < 10) {
+		if (data.apiKey.length < 10) {
 			data.errorMsg = 'Token is too short';
 			return;
 		}
 
-		data.tokenInvalid = true;
+		data.apiKeyInvalid = true;
 		try {
-			await isValidApiKey(data.token);
-			data.tokenInvalid = false;
+			await isValidApiKey(data.apiKey);
+			data.apiKeyInvalid = false;
 		} catch (err: any) {
 			data.errorMsg = err;
 		}
@@ -129,7 +128,7 @@
 
 	$: {
 		const isPlanNameTooShort = data.planName.length < 3;
-		const isTokenInvalidOrNoFiles = data.withAI && (data.tokenInvalid || (!files && !data.createdOpenAI));
+		const isTokenInvalidOrNoFiles = data.withAI && (data.apiKeyInvalid || (!files && !data.createdOpenAI));
 		const isNotCreatedOpenAI = data.withAI && !data.createdOpenAI;
 
 		if (isPlanNameTooShort) {
@@ -137,8 +136,8 @@
 			data.errorMsg = 'Plan name is too short';
 		} else if (isTokenInvalidOrNoFiles || isNotCreatedOpenAI) {
 			data.locked = true;
-			if (data.tokenInvalid) {
-				data.errorMsg = 'Token is invalid';
+			if (data.apiKeyInvalid) {
+				data.errorMsg = 'Api key is invalid';
 			} else if (!files) {
 				data.errorMsg = 'No files selected';
 			} else if (data.errorMsg.startsWith('Error')) {
@@ -150,7 +149,7 @@
 			data.locked = false;
 		}
 
-		data.canCreateOpenAI = !data.tokenInvalid && files != null && !data.createdOpenAI;
+		data.canCreateOpenAI = !data.apiKeyInvalid && files != null && !data.createdOpenAI;
 	}
 
 	let importedPlan: FileList;
@@ -230,16 +229,16 @@
 
 
 		<div class="input-group input-group-divider grid-cols-[1fr_auto]">
-            <input type="text" placeholder="OpenAI api key" bind:value={data.token} class="{showPassword ? '' : 'hidden'}" />
-            <input type="password" placeholder="OpenAI api key" bind:value={data.token} class="{showPassword ? 'hidden' : ''}" />
-            <button class="variant-filled-secondary" on:change={validateToken} on:click={() => showPassword = !showPassword}>
-                <Fa icon={showPassword ? faEyeSlash : faEye} />
+            <input type="text" placeholder="OpenAI api key" bind:value={data.apiKey} class="{data.showPassword ? '' : 'hidden'}" />
+            <input type="password" placeholder="OpenAI api key" bind:value={data.apiKey} class="{data.showPassword ? 'hidden' : ''}" />
+            <button class="variant-filled-secondary" on:change={validateToken} on:click={() => data.showPassword = !data.showPassword}>
+                <Fa icon={data.showPassword ? faEyeSlash : faEye} />
             </button>
         </div>
 
 		<Accordion>
 			<AccordionItem>
-				<svelte:fragment slot="summary">How to get OpenAI token</svelte:fragment>
+				<svelte:fragment slot="summary">How to get OpenAI api key</svelte:fragment>
 				<svelte:fragment slot="content">
 					<p>1. Go to <a class="text-blue-500 hover:text-blue-700 underline" href="https://platform.openai.com/signup" target="_blank">OpenAI</a> and sign up for an account.</p>
 					<p>2. Go to <a class="text-blue-500 hover:text-blue-700 underline" href="https://platform.openai.com/account/api-keys" target="_blank">API keys</a> and create a new key.</p>
@@ -247,14 +246,14 @@
 				</svelte:fragment>
 			</AccordionItem>
 			<AccordionItem>
-				<svelte:fragment slot="summary">How your OpenAI token will be used</svelte:fragment>
+				<svelte:fragment slot="summary">How your OpenAI api key will be used</svelte:fragment>
 				<svelte:fragment slot="content">
 					<ul>
-						<li>The token is stored in your browser.</li>
-						<li>The token will be used to access the OpenAI API.</li>
+						<li>The API key is stored in your browser.</li>
+						<li>The API key will be used to access the OpenAI API.</li>
 						<li>The program will create an assistant in OpenAI.</li>
-						<li>Upload your documents to OpenAI.</li>
-						<li>Create a learning plan from your documents using OpenAI.</li>
+						<li>Your document will be uploaded to OpenAI.</li>
+						<li>In creator mode, you control each request to OpenAI.</li>
 					</ul>
 				</svelte:fragment>
 			</AccordionItem>
