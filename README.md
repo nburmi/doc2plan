@@ -9,7 +9,8 @@ This project is a browser-based application designed to create personalized and 
 
 ### Demo Video
 
-[![demo video](https://img.youtube.com/vi/ZdKwm1-B6Ks/maxresdefault.jpg)](https://youtu.be/ZdKwm1-B6Ks?feature=shared)
+[demo video](https://youtu.be/ZdKwm1-B6Ks?feature=shared)
+
 
 ### Creator
 
@@ -17,9 +18,30 @@ This project is a browser-based application designed to create personalized and 
 
 The Creator allows users to either manually construct a learning plan or use AI to automate the process. The AI functionality can extract chapters and content from any book or document, providing a structured output that includes quizzes generated based on the content. This feature simplifies the creation of comprehensive learning modules tailored to the user's needs.
 
+Follow this path to create a learning plan with AI assistance:
+1. Upload a book.
+2. Extract chapters.
+3. Select chapter and extract key topics and create topics.
+4. Generate content for each topic.
+5. Generate quiz for each topic.
+6. Basically, you can come back to the creator and add more topics or chapters to the plan at any time.
+
+<details>
+  <summary>Demo creator</summary>
+  
+  ![demo_creator](./public/demo_creator.gif)
+</details>
+
+
 ### Viewer
 
 The Viewer presents a straightforward interface with a split-pane layout. The left sidebar displays chapters and topics, where users can track their progress by marking completed topics. The main pane on the right shows the content extracted from the book or document, facilitating easy access and study.
+
+<details>
+  <summary>Demo viewer</summary>
+  
+  ![demo_viewer](./public/demo_viewer.gif)
+</details>
 
 ### Settings
 
