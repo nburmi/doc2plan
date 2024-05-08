@@ -2,11 +2,9 @@
 
 This project is under development.
 
-
 ## Overview
 
 This project is a browser-based application designed to create personalized and structured learning plans by extracting content from documents and allowing users to interactively go through their plan. It features two main components: the **Creator** and the **Viewer**.
-
 
 ### Creator
 
@@ -15,6 +13,7 @@ This project is a browser-based application designed to create personalized and 
 The Creator allows users to either manually construct a learning plan or use AI to automate the process. The AI functionality can extract chapters and content from any book or document, providing a structured output that includes quizzes generated based on the content. This feature simplifies the creation of comprehensive learning modules tailored to the user's needs.
 
 Follow this path to create a learning plan with AI assistance:
+
 1. Upload a book.
 2. Extract chapters.
 3. Select chapter and extract key topics and create topics.
@@ -27,7 +26,6 @@ Follow this path to create a learning plan with AI assistance:
   
   ![demo_creator](./public/demo_creator.gif)
 </details>
-
 
 ### Viewer
 
@@ -53,7 +51,6 @@ The application includes a settings page where users can manage their OpenAI set
 - **Assistant Management**: Manage OpenAI settings and assistants, including creation, updating, and deletion of AI assistants as required.
 - **Customizable Settings**: Manage OpenAI settings including API Key, model, temperature, assistant ID, vector store ID, and file ID used for vector creation.
 - **Integrate with Various RAG(in plans)**: This feature allows you to connect and utilize different Retrieval-Augmented Generation (RAG) for content extraction and question generation. It's not limited to OpenAI's RAG Assistant, offering you the flexibility to choose the RAG that best suits your needs.
-
 
 ## Getting Started
 

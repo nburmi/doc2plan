@@ -1,14 +1,16 @@
-import { join } from 'path'
-import type { Config } from 'tailwindcss'
-import { skeleton } from '@skeletonlabs/tw-plugin'
+import { join } from 'path';
+import type { Config } from 'tailwindcss';
+import { skeleton } from '@skeletonlabs/tw-plugin';
 import forms from '@tailwindcss/forms';
-
 
 export default {
 	darkMode: 'selector',
-	content: ['./src/**/*.{html,js,svelte,ts}', join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}')],
+	content: [
+		'./src/**/*.{html,js,svelte,ts}',
+		join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}')
+	],
 	theme: {
-		extend: {},
+		extend: {}
 	},
 	plugins: [
 		skeleton({
@@ -16,11 +18,11 @@ export default {
 				preset: [
 					{
 						name: 'skeleton',
-						enhancements: true,
-					},
-				],
-			},
+						enhancements: true
+					}
+				]
+			}
 		}),
-		forms,
-	],
+		forms
+	]
 } satisfies Config;

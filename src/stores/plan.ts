@@ -1,6 +1,6 @@
-import { persisted } from 'svelte-persisted-store'
+import { persisted } from 'svelte-persisted-store';
 
 export const planStore = persisted<Plan>('plan', {
-    name: '',
-    chapters: [],
+	name: '',
+	chapters: []
 });
