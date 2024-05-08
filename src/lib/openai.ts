@@ -150,7 +150,7 @@ export async function uploadFile(file: File) {
 		});
 
 		// Create a vector store including our two files.
-		let vectorStore = await openai.beta.vectorStores.create({
+		const vectorStore = await openai.beta.vectorStores.create({
 			name: 'ihaveaplan',
 			file_ids: [response.id],
 			expires_after: {
@@ -168,6 +168,37 @@ export async function uploadFile(file: File) {
 		throw new Error(`Error uploading file: ${error}`);
 	}
 }
+
+const deleteAssistant = async (client: OpenAI, assistantId: string) => {
+	try {
+		await client.beta.assistants.del(assistantId);
+	} catch (error: unknown) {
+		if (!(error instanceof NotFoundError)) {
+			throw new Error(`Error deleting assistant: ${error}`);
+		}
+	}
+};
+
+const deleteFile = async (client: OpenAI, fileId: string) => {
+	try {
+		await client.files.del(fileId);
+	} catch (error: unknown) {
+		if (!(error instanceof NotFoundError)) {
+			throw new Error(`Error deleting file: ${error}`);
+		}
+	}
+};
+
+const deleteVectorStore = async (client: OpenAI, vectorStoreId: string) => {
+	try {
+		await client.beta.vectorStores.del(vectorStoreId);
+	} catch (error: unknown) {
+		if (!(error instanceof NotFoundError)) {
+			throw new Error(`Error deleting vector store: ${error}`);
+		}
+	}
+};
+
 export async function clearOpenAI({
 	assistantId,
 	fileId,
@@ -182,27 +213,10 @@ export async function clearOpenAI({
 		dangerouslyAllowBrowser: true
 	});
 
-	const deleteResource = async (resource: string, delFunction: Function) => {
-		if (resource) {
-			try {
-				await delFunction(resource);
-			} catch (error: any) {
-				if (!(error instanceof NotFoundError)) {
-					throw new Error(`Error deleting ${resource}: ${error}`);
-				}
-			}
-		}
-	};
-
 	try {
-		if (assistantId)
-			await deleteResource(assistantId, openai.beta.assistants.del.bind(openai.beta.assistants));
-		if (vectorStoreId)
-			await deleteResource(
-				vectorStoreId,
-				openai.beta.vectorStores.del.bind(openai.beta.vectorStores)
-			);
-		if (fileId) await deleteResource(fileId, openai.files.del.bind(openai.files));
+		if (assistantId) await deleteAssistant(openai, assistantId);
+		if (vectorStoreId) await deleteVectorStore(openai, vectorStoreId);
+		if (fileId) await deleteFile(openai, fileId);
 
 		openaiStore.update((value) => {
 			value.assistantId = '';
@@ -283,7 +297,7 @@ export async function extractChapters(): Promise<Chapter[]> {
 		const thread = await openai.beta.threads.create();
 		threadId = thread.id;
 
-		const message = await openai.beta.threads.messages.create(thread.id, {
+		await openai.beta.threads.messages.create(thread.id, {
 			role: 'user',
 			content: promptChaptersPlan
 		});
@@ -324,7 +338,7 @@ export async function extractChapters(): Promise<Chapter[]> {
 
 function extractchaptersRaw(chaptersRaw: string): Chapter[] {
 	// clear chapters
-	let chapters: Chapter[] = [];
+	const chapters: Chapter[] = [];
 
 	// find find where number 1 is
 	const start = chaptersRaw.indexOf('1.');
@@ -447,9 +461,7 @@ const parseNumberedList = (input: string): Topic[] => {
 				parent.children = [];
 			}
 			topic.parent_id = parent.id;
-
-			let path = parent.path;
-			topic.path = path + ' > ' + topic.title;
+			topic.path = parent.path + ' > ' + topic.title;
 			parent.children.push(topic);
 		} else {
 			topic.path = topic.title;
