@@ -1,6 +1,6 @@
 <script lang="ts">
     import { planStore } from "../../../stores/plan";
-    import ChapterContent from './ChapterContent.svelte';
+    import ChapterContent from './ChapterComponent.svelte';
 
     export let chapter: Chapter;
 
