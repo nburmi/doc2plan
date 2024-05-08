@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { TreeViewNode } from '@skeletonlabs/skeleton';
-	import { RecursiveTreeView, TreeView } from '@skeletonlabs/skeleton';
+	import { RecursiveTreeView } from '@skeletonlabs/skeleton';
 	import { planStore } from '../../stores/plan';
 	import { get } from 'svelte/store';
     import * as marked from 'marked';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	import TreeViewNodeContent from '../../components/viewer/TreeViewNodeContent.svelte';
-	import SplitPane from "../../components/viewer/SplitPane.svelte";
+	import TreeViewNodeContent from './TreeViewNodeContent.svelte';
+	import SplitPane from "./SplitPane.svelte";
 
 
 	const plan = get(planStore);

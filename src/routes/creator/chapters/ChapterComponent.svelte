@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { openaiStore } from '../../stores/openai';
+    import { openaiStore } from '../../../stores/openai';
     import { get } from 'svelte/store';
     import Topics from './Topics.svelte';
     import { extractKeyTopics, parseKeyTopics as aiParseKeyTopics } from '$lib/openai';
@@ -40,7 +40,7 @@
     }
 </script>
 
-<section class="">
+<section>
     {#if withAI}
         <textarea bind:value={chapter.keyTopics} class="textarea" placeholder="Key topics"></textarea>
         <button class="btn btn-sm variant-filled-secondary" on:click={findKeyTopics} disabled={loading}>
