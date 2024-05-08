@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Begin from "../../components/creator/Begin.svelte";
+	import Index from "./Index.svelte";
 </script>
 
-<Begin />
+<Index />
 
