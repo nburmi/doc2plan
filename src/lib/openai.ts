@@ -1,7 +1,7 @@
-import OpenAI from 'openai';
-import { openaiStore } from '../stores/openai';
 import { get } from 'svelte/store';
 import { NotFoundError } from 'openai';
+import OpenAI from 'openai';
+import { openaiStore } from '../stores/openai';
 
 // return true if the api key is valid
 export async function isValidApiKey(apikey: string): Promise<boolean> {
@@ -50,8 +50,6 @@ export async function createAssistant() {
 		apiKey: get(openaiStore).apiKey,
 		dangerouslyAllowBrowser: true
 	});
-
-	console.log('creating assistant', get(openaiStore).model);
 
 	try {
 		const response = await openai.beta.assistants.create({
@@ -150,7 +148,7 @@ export async function uploadFile(file: File) {
 		});
 
 		// Create a vector store including our two files.
-		let vectorStore = await openai.beta.vectorStores.create({
+		const vectorStore = await openai.beta.vectorStores.create({
 			name: 'ihaveaplan',
 			file_ids: [response.id],
 			expires_after: {
@@ -168,6 +166,37 @@ export async function uploadFile(file: File) {
 		throw new Error(`Error uploading file: ${error}`);
 	}
 }
+
+const deleteAssistant = async (client: OpenAI, assistantId: string) => {
+	try {
+		await client.beta.assistants.del(assistantId);
+	} catch (error: unknown) {
+		if (!(error instanceof NotFoundError)) {
+			throw new Error(`Error deleting assistant: ${error}`);
+		}
+	}
+};
+
+const deleteFile = async (client: OpenAI, fileId: string) => {
+	try {
+		await client.files.del(fileId);
+	} catch (error: unknown) {
+		if (!(error instanceof NotFoundError)) {
+			throw new Error(`Error deleting file: ${error}`);
+		}
+	}
+};
+
+const deleteVectorStore = async (client: OpenAI, vectorStoreId: string) => {
+	try {
+		await client.beta.vectorStores.del(vectorStoreId);
+	} catch (error: unknown) {
+		if (!(error instanceof NotFoundError)) {
+			throw new Error(`Error deleting vector store: ${error}`);
+		}
+	}
+};
+
 export async function clearOpenAI({
 	assistantId,
 	fileId,
@@ -182,27 +211,10 @@ export async function clearOpenAI({
 		dangerouslyAllowBrowser: true
 	});
 
-	const deleteResource = async (resource: string, delFunction: Function) => {
-		if (resource) {
-			try {
-				await delFunction(resource);
-			} catch (error: any) {
-				if (!(error instanceof NotFoundError)) {
-					throw new Error(`Error deleting ${resource}: ${error}`);
-				}
-			}
-		}
-	};
-
 	try {
-		if (assistantId)
-			await deleteResource(assistantId, openai.beta.assistants.del.bind(openai.beta.assistants));
-		if (vectorStoreId)
-			await deleteResource(
-				vectorStoreId,
-				openai.beta.vectorStores.del.bind(openai.beta.vectorStores)
-			);
-		if (fileId) await deleteResource(fileId, openai.files.del.bind(openai.files));
+		if (assistantId) await deleteAssistant(openai, assistantId);
+		if (vectorStoreId) await deleteVectorStore(openai, vectorStoreId);
+		if (fileId) await deleteFile(openai, fileId);
 
 		openaiStore.update((value) => {
 			value.assistantId = '';
@@ -233,27 +245,18 @@ export async function clearEverything() {
 		}
 
 		let done = false;
-
 		let vectorStores = await openai.beta.vectorStores.list();
-		console.log(vectorStores.data);
 
 		while (vectorStores.data.length > 0 && !done) {
-			console.log(`length: ${vectorStores.data.length}`);
-
 			const last = vectorStores.data[vectorStores.data.length - 1];
 
 			// except latest index
 			for (let i = 0; i < vectorStores.data.length - 1; i++) {
-				console.log(`deleting ${vectorStores.data[i].id}`);
 				await openai.beta.vectorStores.del(vectorStores.data[i].id);
 			}
 
 			if (vectorStores.hasNextPage()) {
-				console.log('getting next page');
 				vectorStores = await vectorStores.getNextPage();
-
-				// delete the last one
-				console.log(`deleting ${last.id}`);
 				await openai.beta.vectorStores.del(last.id);
 			} else {
 				done = true;
@@ -283,7 +286,7 @@ export async function extractChapters(): Promise<Chapter[]> {
 		const thread = await openai.beta.threads.create();
 		threadId = thread.id;
 
-		const message = await openai.beta.threads.messages.create(thread.id, {
+		await openai.beta.threads.messages.create(thread.id, {
 			role: 'user',
 			content: promptChaptersPlan
 		});
@@ -324,7 +327,7 @@ export async function extractChapters(): Promise<Chapter[]> {
 
 function extractchaptersRaw(chaptersRaw: string): Chapter[] {
 	// clear chapters
-	let chapters: Chapter[] = [];
+	const chapters: Chapter[] = [];
 
 	// find find where number 1 is
 	const start = chaptersRaw.indexOf('1.');
@@ -447,9 +450,7 @@ const parseNumberedList = (input: string): Topic[] => {
 				parent.children = [];
 			}
 			topic.parent_id = parent.id;
-
-			let path = parent.path;
-			topic.path = path + ' > ' + topic.title;
+			topic.path = parent.path + ' > ' + topic.title;
 			parent.children.push(topic);
 		} else {
 			topic.path = topic.title;
@@ -464,8 +465,6 @@ const parseNumberedList = (input: string): Topic[] => {
 
 export async function generateTopicContent(chapter: string, path: string): Promise<string> {
 	const prompt = `Teach me topic "${path}" from ${chapter}. Provide a detailed explanation of the topic.`;
-	console.log(prompt);
-
 	const openai = new OpenAI({
 		apiKey: get(openaiStore).apiKey,
 		dangerouslyAllowBrowser: true
@@ -523,8 +522,6 @@ export async function generateQuizes(
     Question: [Question 2]
     Answer: [Answer 2]
     // Continue with additional questions and answers as necessary`;
-
-	console.log(prompt);
 
 	const openai = new OpenAI({
 		apiKey: get(openaiStore).apiKey,

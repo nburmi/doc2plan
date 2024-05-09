@@ -3,20 +3,22 @@
     import { get } from 'svelte/store';
     import Topics from './Topics.svelte';
     import { extractKeyTopics, parseKeyTopics as aiParseKeyTopics } from '$lib/openai';
-    import Fa from 'svelte-fa'
+    import Fa from 'svelte-fa';
     import { faSpinner } from '@fortawesome/free-solid-svg-icons';
     import { createEventDispatcher } from 'svelte';
+    import { sendErrorToast } from '$lib/alertToast';
 
     export let chapter: Chapter;
 
     const withAI = get(openaiStore).assistantId !== '';
+
     let loading = false;
     async function findKeyTopics() {
         loading = true;
         try {
             chapter.keyTopics = await extractKeyTopics(chapter.name);
-        } catch (error) {
-            console.error(error);
+        } catch (error: unknown) {
+            sendErrorToast(`extract key topics: ${error}`);
         } finally {
             loading = false;
         }
@@ -24,7 +26,7 @@
 
     function parseKeyTopics() {
         if (!chapter.keyTopics) {
-            console.error('No key topics to parse');
+            sendErrorToast('No key topics to parse');
             return;
         }
 
@@ -34,8 +36,6 @@
 
     const dispatch = createEventDispatcher();
     function updateTopics(topics: Topic[]) {
-        console.log('update topics', topics);
-
         dispatch('updateTopics', {id: chapter.id, topics});
     }
 </script>

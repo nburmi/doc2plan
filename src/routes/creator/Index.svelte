@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import { isValidApiKey, clearOpenAI, createAssistant, uploadFile } from '$lib/openai';
+	import { faArrowRight, faEyeSlash, faEye, faSpinner } from '@fortawesome/free-solid-svg-icons';
 	import { openaiStore } from '../../stores/openai';
 	import { planStore } from '../../stores/plan';
 	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	import Fa from 'svelte-fa';
-	import { faArrowRight, faEyeSlash, faEye, faSpinner } from '@fortawesome/free-solid-svg-icons';
 	import { base } from '$app/paths';
 	
 	let data = {
@@ -55,7 +55,7 @@
 					vectorStoreId: get(openaiStore).vectorStoreId,
 				}
 			);
-		} catch (err: any) {
+		} catch (err: unknown) {
 			data.errorMsg = `${err}`;
 		} finally {
 			clearing = false;
@@ -86,9 +86,8 @@
 			await createAssistant();
 			
 			data.createdOpenAI = true;
-		} catch (err: any) {
+		} catch (err: unknown) {
 			data.errorMsg = `${err}`;
-			console.error(err);
 		} finally {
 			creating = false;
 			creatingMessage = message;
@@ -105,8 +104,8 @@
 		try {
 			await isValidApiKey(data.apiKey);
 			data.apiKeyInvalid = false;
-		} catch (err: any) {
-			data.errorMsg = err;
+		} catch (err: unknown) {
+			data.errorMsg = `${err}`;
 		}
 	}
 
@@ -238,8 +237,8 @@
 			<AccordionItem>
 				<svelte:fragment slot="summary">How to get OpenAI api key</svelte:fragment>
 				<svelte:fragment slot="content">
-					<p>1. Go to <a class="text-blue-500 hover:text-blue-700 underline" href="https://platform.openai.com/signup" target="_blank">OpenAI</a> and sign up for an account.</p>
-					<p>2. Go to <a class="text-blue-500 hover:text-blue-700 underline" href="https://platform.openai.com/account/api-keys" target="_blank">API keys</a> and create a new key.</p>
+					<p>1. Go to <a class="text-blue-500 hover:text-blue-700 underline" href="https://platform.openai.com/signup" target="_blank" rel="noopener noreferrer">OpenAI</a> and sign up for an account.</p>					
+					<p>2. Go to <a class="text-blue-500 hover:text-blue-700 underline" href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener noreferrer">API keys</a> and create a new key.</p>
 					<p>3. Copy the key and paste it in the input field above.</p>
 				</svelte:fragment>
 			</AccordionItem>

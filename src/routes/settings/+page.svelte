@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { openaiStore } from "../../stores/openai";
+    import { openaiStore } from '../../stores/openai';
     import { Fa } from 'svelte-fa';
     import { faEye, faEyeSlash, faFloppyDisk, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons';
     import { get } from 'svelte/store';
     import { popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
     import { RangeSlider } from '@skeletonlabs/skeleton';
-    import { clearOpenAI, updateAssistant } from "$lib/openai";
-
+    import { clearOpenAI, updateAssistant } from '$lib/openai';
+    import { sendErrorToast } from '$lib/alertToast';
 
     let data: OpenAI;
 
@@ -23,7 +23,7 @@
                 vectorStoreId: value.vectorStoreId,
                 assistantId: value.assistantId,
                 reset: value.reset
-            }
+            };
             return ;
         } 
 
@@ -61,7 +61,7 @@
         placement: 'bottom'
     };
 
-    const max = 2;
+    const maxTemperature = 2;
 
     async function save() {
         openaiStore.update((value) => {
@@ -77,9 +77,9 @@
 
         try {
             saved = Status.IN_PROGRESS;
-            await updateAssistant()
-        } catch (e) {
-            console.error(e);
+            await updateAssistant();
+        } catch (e: unknown) {
+            sendErrorToast(`saving settings: ${e}`);
         } finally {
             saved = Status.SAVED;
         }
@@ -87,6 +87,7 @@
 
     let deleting = false;
     let createdOpenAI: boolean = get(openaiStore).assistantId !== '';
+
     async function deleteAndReset() {
         try {
             deleting = true;
@@ -96,8 +97,8 @@
                 fileId: data.fileId,
                 vectorStoreId: data.vectorStoreId
             });
-        } catch (e) {
-            console.error(e);
+        } catch (e: unknown) {
+            sendErrorToast(`deleting settings: ${e}`);
         } finally {
             deleting = false;
         }
@@ -144,10 +145,10 @@
         </label>
 
         <div class="flex flex-col p-4 w-full">
-            <RangeSlider name="range-slider" bind:value={data.temperature} max={max} step={0.1} ticked={true}>
+            <RangeSlider name="range-slider" bind:value={data.temperature} max={maxTemperature} step={0.1} ticked={true}>
                 <div class="flex justify-between items-center">
                     <div>Temperature: {data.temperature}</div>
-                    <div class="text-xs">{data.temperature} / {max}</div>
+                    <div class="text-xs">{data.temperature} / {maxTemperature}</div>
                 </div>
             </RangeSlider>
         </div>

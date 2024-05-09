@@ -9,11 +9,11 @@
 
     const deleteQuiz = () => {
         dispatch('deleteQuiz', {id: quiz.id});
-    }
+    };
 
     const updateQuiz = () => {
         dispatch('updateQuiz', {id: quiz.id, quiz: quiz});
-    }
+    };
 </script>
 
 <div class="flex flex-col">

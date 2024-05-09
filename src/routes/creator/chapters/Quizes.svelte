@@ -1,9 +1,10 @@
 <script lang="ts">
+    import { faPlus, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+    import { generateQuizes as aiGenerateQuizes } from '$lib/openai';
     import QuizComponent from './QuizComponent.svelte';
     import { createEventDispatcher } from 'svelte';
     import { Fa } from 'svelte-fa';
-    import { faPlus, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-    import { generateQuizes as aiGenerateQuizes } from '$lib/openai';
+    import { sendErrorToast } from '$lib/alertToast';
 
     export let quizzes: Quiz[] | undefined;
     export let chapterName: string;
@@ -35,14 +36,14 @@
         ];
 
         dispatch('updateQuizes', {quizzes});
-    }
+    };
 
     const handleDelete = (event: CustomEvent) => {
         if (!quizzes) return;
 
         quizzes = quizzes.filter((q) => q.id !== event.detail.id);
         dispatch('updateQuizes', {quizzes});
-    }
+    };
 
     const handleUpdate = (event: CustomEvent) => {
         if (!quizzes) return;
@@ -52,15 +53,15 @@
 
         quizzes[index] = event.detail.quiz;
         dispatch('updateQuizes', {quizzes});
-    }
+    };
 
     async function generateQuizes () {
         loading = true;
         try {
             quizzes = await aiGenerateQuizes(chapterName, topicPath, topicContent || '');
             dispatch('updateQuizes', {quizzes});
-        } catch (error) {
-            console.error(error);
+        } catch (error: unknown) {
+            sendErrorToast(`generate quizzes: ${error}`);
         } finally {
             loading = false;
         }
@@ -68,7 +69,7 @@
 
     const hideShow = () => {
         show = !show;
-    }
+    };
 </script>
 
 
