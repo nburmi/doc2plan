@@ -9,17 +9,17 @@
 
     // save as JSON
     const saveAsJSON = () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(plan, null, 2));
+        const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(plan, null, 2));
         const downloadAnchorNode = document.createElement('a');
-        const filename = prompt("Enter file name:", get(planStore).name + ".json");
+        const filename = prompt('Enter file name:', get(planStore).name + '.json');
         if (filename !== null) {
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", filename);
+            downloadAnchorNode.setAttribute('href', dataStr);
+            downloadAnchorNode.setAttribute('download', filename);
             document.body.appendChild(downloadAnchorNode); // required for Firefox
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
         }
-    }
+    };
 
     let resetted = isPlanEmpty();
     function clear() {

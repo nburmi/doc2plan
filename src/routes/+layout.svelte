@@ -1,22 +1,24 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { AppBar, AppShell } from '@skeletonlabs/skeleton';
+	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
-	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
-	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
-
 	import { onMount } from 'svelte';
 	import { autoModeWatcher } from '@skeletonlabs/skeleton';
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
+	import { initializeStores, Toast } from '@skeletonlabs/skeleton';
 
+	initializeStores();
 
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	onMount(() => {										
 		autoModeWatcher();
 	});
 </script>
 
+<Toast />
 
 <!-- App Shell -->
 <AppShell>

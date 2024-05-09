@@ -6,7 +6,7 @@
     import * as marked from 'marked';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import TreeViewNodeContent from './TreeViewNodeContent.svelte';
-	import SplitPane from "./SplitPane.svelte";
+	import SplitPane from './SplitPane.svelte';
 
 
 	const plan = get(planStore);
@@ -42,8 +42,8 @@
 		return items;
 	}
 
-	function makeChapterID (chapter: Chapter) {return `chapter-${chapter.id}`};
-	function makeTopicID (parent: string, topic: Topic) { return `${parent}-topic-${topic.id}`};
+	function makeChapterID (chapter: Chapter) {return `chapter-${chapter.id}`;};
+	function makeTopicID (parent: string, topic: Topic) { return `${parent}-topic-${topic.id}`;};
 
 
 	function insertParent(parent: string): boolean {
@@ -102,9 +102,6 @@
 	}
 
 	$: {
-		console.log("checked nodes", checkedNodes);
-		console.log("indeterminate nodes", indeterminateNodes);
-
 		get(planStore).chapters.forEach(chapter => {
 			chapter.done = false;
 

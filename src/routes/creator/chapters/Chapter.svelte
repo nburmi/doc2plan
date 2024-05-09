@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { planStore } from "../../../stores/plan";
+    import { planStore } from '../../../stores/plan';
     import ChapterContent from './ChapterComponent.svelte';
 
     export let chapter: Chapter;

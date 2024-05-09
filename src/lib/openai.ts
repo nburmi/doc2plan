@@ -1,7 +1,7 @@
-import OpenAI from 'openai';
-import { openaiStore } from '../stores/openai';
 import { get } from 'svelte/store';
 import { NotFoundError } from 'openai';
+import OpenAI from 'openai';
+import { openaiStore } from '../stores/openai';
 
 // return true if the api key is valid
 export async function isValidApiKey(apikey: string): Promise<boolean> {
@@ -50,8 +50,6 @@ export async function createAssistant() {
 		apiKey: get(openaiStore).apiKey,
 		dangerouslyAllowBrowser: true
 	});
-
-	console.log('creating assistant', get(openaiStore).model);
 
 	try {
 		const response = await openai.beta.assistants.create({
@@ -247,27 +245,18 @@ export async function clearEverything() {
 		}
 
 		let done = false;
-
 		let vectorStores = await openai.beta.vectorStores.list();
-		console.log(vectorStores.data);
 
 		while (vectorStores.data.length > 0 && !done) {
-			console.log(`length: ${vectorStores.data.length}`);
-
 			const last = vectorStores.data[vectorStores.data.length - 1];
 
 			// except latest index
 			for (let i = 0; i < vectorStores.data.length - 1; i++) {
-				console.log(`deleting ${vectorStores.data[i].id}`);
 				await openai.beta.vectorStores.del(vectorStores.data[i].id);
 			}
 
 			if (vectorStores.hasNextPage()) {
-				console.log('getting next page');
 				vectorStores = await vectorStores.getNextPage();
-
-				// delete the last one
-				console.log(`deleting ${last.id}`);
 				await openai.beta.vectorStores.del(last.id);
 			} else {
 				done = true;
@@ -476,8 +465,6 @@ const parseNumberedList = (input: string): Topic[] => {
 
 export async function generateTopicContent(chapter: string, path: string): Promise<string> {
 	const prompt = `Teach me topic "${path}" from ${chapter}. Provide a detailed explanation of the topic.`;
-	console.log(prompt);
-
 	const openai = new OpenAI({
 		apiKey: get(openaiStore).apiKey,
 		dangerouslyAllowBrowser: true
@@ -535,8 +522,6 @@ export async function generateQuizes(
     Question: [Question 2]
     Answer: [Answer 2]
     // Continue with additional questions and answers as necessary`;
-
-	console.log(prompt);
 
 	const openai = new OpenAI({
 		apiKey: get(openaiStore).apiKey,

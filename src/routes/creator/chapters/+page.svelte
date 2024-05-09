@@ -3,14 +3,15 @@
     import { get } from 'svelte/store';
     import { planStore } from '../../../stores/plan';
     import Chapter from './Chapter.svelte';
-    import Fa from 'svelte-fa'
-    import { faPlus, faTrash, faWandMagicSparkles, faSpinner, faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+    import Fa from 'svelte-fa';
+    import { faPlus, faTrash, faWandMagicSparkles, faSpinner, faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
     import { popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
     import { extractChapters as aiExtractChapters } from '$lib/openai';
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
+    import { sendErrorToast } from '$lib/alertToast';
 
 
     const withAI = get(openaiStore).assistantId !== '';
@@ -22,7 +23,6 @@
     });
 
     const addChapter = () => {
-        console.log(chapters);
         planStore.update((store) => {
             store.chapters.push({ id: store.chapters.length + 1, name: '', done: false, topics: []});
             return store;
@@ -46,8 +46,8 @@
                 store.chapters = extracted;
                 return store;
             });
-        } catch (e) {
-            console.error(e);
+        } catch (e: unknown) {
+            sendErrorToast(`extract chapters: ${e}`);
         } finally {
             loading = false;
         }

@@ -6,6 +6,8 @@
     import { faTrash, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
     import { generateTopicContent } from '$lib/openai';
+    import { sendErrorToast } from '$lib/alertToast';
+
 
     export let topic: Topic;
     export let chapterName: string;
@@ -16,10 +18,10 @@
     async function generateContent() {
         loading = true;
         try {
-            topic.content = await generateTopicContent(chapterName, topic.path)
+            topic.content = await generateTopicContent(chapterName, topic.path);
             updateTopic();
-        } catch (error) {
-            console.error(error);
+        } catch (error: unknown) {
+            sendErrorToast(`generate content: ${error}`);
         } finally {
             loading = false;
         }
@@ -47,17 +49,17 @@
                 quizzes: []
             }
         ];
-    }
+    };
 
     const handleUpdateQuizes = (event: CustomEvent) => {
         topic.quizzes = event.detail.quizzes;
         updateTopic();
-    }
+    };
 
     const dispatch = createEventDispatcher();
     const updateTopic = () => {
         dispatch('updateTopic', {id: topic.id, topic});
-    }
+    };
 
     const updateSubtopic = (event: CustomEvent) => {
         if (!topic.children) {
@@ -71,7 +73,7 @@
 
         // update the parent topic
         updateTopic();
-    }
+    };
 
     const deleteSubtopic = (event: CustomEvent) => {
         if (!topic.children) {
@@ -83,7 +85,7 @@
 
         // update the parent topic
         updateTopic();
-    }
+    };
 
     function deleteSub(id: number) {
         return () => {
@@ -91,7 +93,7 @@
 
             topic.children = topic.children.filter((t) => t.id !== id);
             updateTopic();
-        }
+        };
     }
 </script>
 

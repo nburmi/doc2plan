@@ -35,7 +35,7 @@
             store.chapters[index].topics = topics;
             return store;
         });
-    }
+    };
 
     const handleDelete = (event: CustomEvent) => {
         const id = Number(event.detail.id);
@@ -47,7 +47,7 @@
             store.chapters[index].topics = topics;
             return store;
         });
-    }
+    };
 
     function deleteTopic(id: number) {
         return () => {
@@ -58,13 +58,13 @@
                 store.chapters[index].topics = topics;
                 return store;
             });
-        }
+        };
     }
 
     const getChapterName = () => {
         const chapter = get(planStore).chapters.find((c) => c.id === chapter_id);
         return chapter ? chapter.name : '';
-    }
+    };
 
     const handleUpdate = (event: CustomEvent) => {      
         const id = Number(event.detail.id);
@@ -83,7 +83,7 @@
             store.chapters[index].topics = topics;
             return store;
         });
-    }
+    };
 </script>
 
 <div class="flex flex-col items-start min-w-full">
