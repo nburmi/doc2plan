@@ -7,7 +7,7 @@
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import TreeViewNodeContent from './TreeViewNodeContent.svelte';
 	import SplitPane from './SplitPane.svelte';
-
+	import DOMPurify from 'dompurify';
 
 	const plan = get(planStore);
 	let checkedNodes : string[] = [];
@@ -206,6 +206,10 @@
 
 		return null;
 	}
+
+	function markdownToHTML(md: string): string {
+		return DOMPurify.sanitize(marked.parse(md));
+	}
 </script>
 
 
@@ -229,13 +233,14 @@
 		<div class="container space-y-4 p-4">
 			{#if currentChapter && !currentTopic}
 				<h1>{currentChapter.name}</h1>
-				{@html marked.parse(currentChapter.keyTopics ? currentChapter.keyTopics : '')}
+				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+				{@html markdownToHTML(currentChapter.keyTopics ? currentChapter.keyTopics : '')}
 			{/if}
 	
 			{#if currentTopic}
 				<h1>{currentTopic.title}</h1>
-				{@html marked.parse(currentTopic.content ? currentTopic.content : '')}
-	
+				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+				{@html markdownToHTML(currentTopic.content ? currentTopic.content : '')}
 	
 				{#if currentTopic.quizzes}
 					<h2>Quizes</h2>
@@ -244,7 +249,8 @@
 							<AccordionItem>
 								<svelte:fragment slot="summary">{quiz.question}</svelte:fragment>
 								<svelte:fragment slot="content">
-									{@html marked.parse(quiz.answer)}
+									<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  									{@html markdownToHTML(quiz.answer)}
 								</svelte:fragment>
 							</AccordionItem>
 						{/each}
