@@ -38,6 +38,13 @@ declare global {
 		model: string;
 		temperature: number;
 		reset(): void;
+		prompts?: {
+			chapters: string;
+			chapterKeyTopics: string;
+			topicContent: string;
+			topicQuizzes: string;
+			validate: () => boolean;
+		};
 	};
 }
 
