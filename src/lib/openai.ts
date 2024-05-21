@@ -611,3 +611,69 @@ function parseQuestions(questions: string): Quiz[] {
 
 	return quizzes;
 }
+
+export async function createThread(): Promise<string> {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		const thread = await openai.beta.threads.create();
+		return thread.id;
+	} catch (error) {
+		throw new Error(`Error creating thread: ${error}`);
+	}
+}
+
+export async function deleteThread(threadId: string) {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		await openai.beta.threads.del(threadId);
+	} catch (error) {
+		throw new Error(`Error deleting thread: ${error}`);
+	}
+}
+
+export async function chatWithAssistant(threadId: string, message: string): Promise<string> {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		await openai.beta.threads.messages.create(threadId, {
+			role: 'user',
+			content: message
+		});
+
+		let run = await openai.beta.threads.runs.create(threadId, {
+			assistant_id: get(openaiStore).assistantId,
+			instructions: 'Chat with the assistant about book content.'
+		});
+
+		while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
+			await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second
+			run = await openai.beta.threads.runs.retrieve(run.thread_id, run.id);
+		}
+
+		const messages = await openai.beta.threads.messages.list(threadId, { limit: 1, order: 'desc' });
+		if (messages.data.length === 0) {
+			throw new Error('Error extracting topics: No data returned');
+		}
+
+		const response = messages.data[0];
+		let content = '';
+		for (const c of response.content) {
+			if (c.type === 'text') content += c.text.value + '\n';
+		}
+
+		return content;
+	} catch (error) {
+		throw new Error(`Error chat with created assistant: ${error}`);
+	}
+}

@@ -8,8 +8,13 @@
 	import TreeViewNodeContent from './TreeViewNodeContent.svelte';
 	import SplitPane from './SplitPane.svelte';
 	import DOMPurify from 'dompurify';
+	import Chat from './Chat.svelte';
+	import { faComments } from '@fortawesome/free-solid-svg-icons';
+	import Fa from 'svelte-fa';
 
 	const plan = get(planStore);
+
+	let chatOpened = false;
 	let checkedNodes : string[] = [];
 	let indeterminateNodes: string[] = [];
 	let chapters = chaptersToTree(plan.chapters);
@@ -230,35 +235,48 @@
 		</div>
 	</div>
 	<div slot="right">
-		<div class="container space-y-4 p-4">
-			{#if currentChapter && !currentTopic}
-				<h1>{currentChapter.name}</h1>
-				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-				{@html markdownToHTML(currentChapter.keyTopics ? currentChapter.keyTopics : '')}
-			{/if}
-	
-			{#if currentTopic}
-				<h1>{currentTopic.title}</h1>
-				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-				{@html markdownToHTML(currentTopic.content ? currentTopic.content : '')}
-	
-				{#if currentTopic.quizzes}
-					<h2>Quizes</h2>
-					<Accordion>
-						{#each currentTopic.quizzes as quiz}
-							<AccordionItem>
-								<svelte:fragment slot="summary">{quiz.question}</svelte:fragment>
-								<svelte:fragment slot="content">
-									<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  									{@html markdownToHTML(quiz.answer)}
-								</svelte:fragment>
-							</AccordionItem>
-						{/each}
-					</Accordion>
+		{#if chatOpened && currentTopic}
+			<Chat topic={currentTopic}/>
+		{:else}
+			<div class="container space-y-4 p-4">
+				{#if currentChapter && !currentTopic}
+					<h1>{currentChapter.name}</h1>
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+					{@html markdownToHTML(currentChapter.keyTopics ? currentChapter.keyTopics : '')}
 				{/if}
+		
+				{#if currentTopic}
+					<h1>{currentTopic.title}</h1>
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+					{@html markdownToHTML(currentTopic.content ? currentTopic.content : '')}
+		
+					{#if currentTopic.quizzes}
+						<h2>Quizes</h2>
+						<Accordion>
+							{#each currentTopic.quizzes as quiz}
+								<AccordionItem>
+									<svelte:fragment slot="summary">{quiz.question}</svelte:fragment>
+									<svelte:fragment slot="content">
+										<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+										{@html markdownToHTML(quiz.answer)}
+									</svelte:fragment>
+								</AccordionItem>
+							{/each}
+						</Accordion>
+					{/if}
+				{/if}
+			</div>
+		{/if}
+		
+		<button class="btn variant-filled-secondary m-4" on:click={() => chatOpened = !chatOpened}>
+			<i>
+			{#if chatOpened}
+				Close Chat
+			{:else}
+				Open Chat
 			{/if}
-		</div>
+			</i>
+			<Fa icon={faComments} />
+		</button>
 	</div>
 </SplitPane>
-
-
