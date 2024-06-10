@@ -282,9 +282,6 @@ async function handleRecording() {
             return;
         }
 
-
-
-
         const text = await speechToText(audioBlob);
         if (text) {
             currentMessage = text;
@@ -300,8 +297,6 @@ async function handleRecording() {
 }
 
 let convertingToAudio = false;
-
-
 
 async function assistantTextToSpeech(index: number): Promise<void> {
     try {
