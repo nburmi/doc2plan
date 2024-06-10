@@ -332,6 +332,8 @@ async function assistantTextToSpeech(index: number): Promise<void> {
                     Welcome to the chat! Here you can ask questions, discuss topics, and get feedback from your assistant.
                     Your topic is "{topic.title}".
                 </p>
+
+                <b>Chat will not be saved after you leave this page. </b>
             </div>
         </div>
         <div class="grid">
@@ -349,7 +351,7 @@ async function assistantTextToSpeech(index: number): Promise<void> {
                         <button class="btn btn-sm variant-filled-primary" on:click={onCurrentTopicClick}>Start</button>
                     </div>
                     <div class="flex-grow card p-4">
-                        Go through quizzes for topic "{topic.title}"
+                        Go through quizzes for topic "{topic.title}" (coming soon)
                         <button class="btn btn-sm variant-filled-primary" on:click={onQuizzesClick}>Start</button>
                     </div>
                     <div class="flex-grow card p-4">
