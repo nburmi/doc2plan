@@ -1,11 +1,10 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
-	import { chatWithAssistant, createThread, deleteThread } from '$lib/openai';
+	import { chatWithAssistant, createThread, deleteThread, addMessageToThread } from '$lib/openai';
 	import { faMicrophone, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
     import * as marked from 'marked';
     import DOMPurify from 'dompurify';
-
 
 
 let elemChat: HTMLElement;
@@ -28,15 +27,43 @@ type Message = {
     host: boolean;
     name: string;
     message: string;
-    color: string;
 };
 
-let messageFeed: Message[] = [
-];
+let messageFeed: Message[] = [];
 
 let threadId: string;
 
-async function addMessage(): Promise<void> {
+async function addMessage(msg: string, host: boolean): Promise<void> {
+    const newMessage = {
+        id: messageFeed.length,
+        host,
+        name: host ? 'User' : 'AI Bot',
+        message: msg,
+        color: host ? 'variant-soft-primary' : 'variant-soft-primary'
+    };
+
+    // Update the message feed
+    messageFeed = [...messageFeed, newMessage];
+
+    const role = host ? 'user' : 'assistant';
+    try {
+        if (!threadId) {
+            threadId = await createThread();
+        }
+
+        await addMessageToThread(threadId, role, msg);
+    } catch (error) {
+        console.error(error);
+    }
+
+    // Smooth scroll to bottom
+    // Timeout
+    setTimeout(() => {
+        scrollChatBottom('smooth');
+    }, 0);
+}
+
+async function sendChatMessage(): Promise<void> {
     if (!currentMessage) {
         return;
     }
@@ -46,10 +73,14 @@ async function addMessage(): Promise<void> {
         host: true,
         name: 'User',
         message: currentMessage,
-        color: 'variant-soft-primary'
     };
     // Update the message feed
     messageFeed = [...messageFeed, newMessage];
+
+    const msg = currentMessage;
+
+    // Clear prompt
+    currentMessage = '';
 
     // Smooth scroll to bottom
     // Timeout prevents race condition
@@ -64,13 +95,12 @@ async function addMessage(): Promise<void> {
             threadId = await createThread();
         }
 
-        const aiResponse = await chatWithAssistant(threadId, currentMessage);
+        const aiResponse = await chatWithAssistant(threadId, msg);
         const newAiMessage = {
             id: messageFeed.length,
             host: false,
             name: 'AI Bot',
             message: aiResponse,
-            color: 'variant-soft-primary'
         };
 
         // Update the message feed
@@ -79,8 +109,6 @@ async function addMessage(): Promise<void> {
         console.error(error);
     } finally {
         chatProcessing = false;
-        // Clear prompt
-        currentMessage = '';
     }
 
     // Smooth scroll to bottom
@@ -98,7 +126,7 @@ async function onPromptKeydown(event: KeyboardEvent): Promise<void> {
 
     if (['Enter'].includes(event.code)) {
         event.preventDefault();
-        await addMessage();
+        await sendChatMessage();
     }
 }
 
@@ -118,11 +146,19 @@ function onMyPromptClick(): void {
     addChoosenScenario();
 }
 
-function onCurrentTopicClick(): void {
+async function onCurrentTopicClick(): Promise<void> {
     console.log('Current Topic');
     scenarioChoosen = true;
     currentScenario = Scenario.CurrentTopic;
     addChoosenScenario();
+
+    // send topic information to the AI
+    const msg = `Dear AI, I would like to discuss the topic "${topic.title}". Consider the following content: "${topic.content}".`;
+    try {
+        await addMessage(msg, true);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 function onQuizzesClick(): void {
@@ -130,13 +166,25 @@ function onQuizzesClick(): void {
     scenarioChoosen = true;
     currentScenario = Scenario.Quizzes;
     addChoosenScenario();
+
+    // init quizzes variable
 }
 
-function onFeynmanClick(): void {
+async function onFeynmanClick(): Promise<void> {
     console.log('Feynman');
     scenarioChoosen = true;
     currentScenario = Scenario.Feynman;
     addChoosenScenario();
+
+    const promptUser      = `ChatGPT, I want you to act as a curious person. I'll provide an original text on a concept, and then I'll try to explain it to you. Your job is to listen, ask questions, and provide feedback based on the explanation. However, never give me a straight answer; only give me clues or lead me to think deeper. Also, compare my explanation to the original text to see if I missed anything or made mistakes. If so, guide me subtly without directly pointing it out. Now, here's the original text: "${topic.content}". Let me start explaining, and remember, be curious and only give clues!`;
+	const promptAssistant = "Understood. I will be a curious person and only give clues. I will also compare your explanation to the original text to see if you missed anything or made mistakes. If so, I will guide you subtly without directly pointing it out. Let's start!"
+
+    try {
+        await addMessage(promptUser, true);
+        await addMessage(promptAssistant, false);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 function addChoosenScenario(): void {
@@ -147,7 +195,6 @@ function addChoosenScenario(): void {
                 host: false,
                 name: 'AI Bot',
                 message: 'You have choosen to start a custom conversation.',
-                color: 'variant-soft-primary'
             }];
             break;
         case Scenario.CurrentTopic:
@@ -156,7 +203,6 @@ function addChoosenScenario(): void {
                 host: false,
                 name: 'AI Bot',
                 message: 'You have choosen to start a conversation about the current topic.',
-                color: 'variant-soft-primary'
             }];
             break;
         case Scenario.Quizzes:
@@ -165,7 +211,6 @@ function addChoosenScenario(): void {
                 host: false,
                 name: 'AI Bot',
                 message: 'You have choosen to go through quizzes for the current topic.',
-                color: 'variant-soft-primary'
             }];
             break;
         case Scenario.Feynman:
@@ -174,7 +219,6 @@ function addChoosenScenario(): void {
                 host: false,
                 name: 'AI Bot',
                 message: 'You have choosen to explain the current topic using the Feynman technique.',
-                color: 'variant-soft-primary'
             }];
             break;
     }
@@ -191,17 +235,6 @@ onDestroy(() => {
 });
 </script>
 
-<!-- 
-    purpose of chat
-
-    prompt scenarios
-    - my prompt
-    - conversation about a current topic
-    - go through quizzes. + feedback
-    - feynman technique explain topic + feedback
- -->
-
-<!-- Chat -->
 <div class="grid grid-row-[1fr_auto]">
     <!-- Conversation -->
     <section bind:this={elemChat} class="max-h-[500px] p-4 overflow-y-auto space-y-4">
@@ -255,7 +288,7 @@ onDestroy(() => {
                 </div>
             {:else}
                 <div class="grid grid-cols-[1fr_auto] gap-2">
-                    <div class="card p-4 rounded-tr-none space-y-2 {bubble.color}">
+                    <div class="card p-4 rounded-tr-none space-y-2 variant-soft-primary">
                         <header class="flex justify-between items-center">
                             <p class="font-bold">{bubble.name}</p>
                         </header>
@@ -286,7 +319,7 @@ onDestroy(() => {
                 minlength="1"
                 on:keydown={onPromptKeydown}
             ></textarea>
-            <button class={currentMessage ? 'variant-filled-primary' : 'input-group-shim'} on:click={addMessage} disabled={chatProcessing}>
+            <button class={currentMessage ? 'variant-filled-primary' : 'input-group-shim'} on:click={sendChatMessage} disabled={chatProcessing}>
                 <Fa icon={faPaperPlane} />
             </button>
         </div>

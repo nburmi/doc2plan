@@ -677,3 +677,21 @@ export async function chatWithAssistant(threadId: string, message: string): Prom
 		throw new Error(`Error chat with created assistant: ${error}`);
 	}
 }
+
+export async function addMessageToThread(threadId: string, role: "user" | "assistant", content: string) {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		await openai.beta.threads.messages.create(threadId, {
+			role: role,
+			content: content
+		});
+	} catch (error) {
+		throw new Error(`Error adding message to thread: ${error}`);
+	}
+
+	return;
+}
