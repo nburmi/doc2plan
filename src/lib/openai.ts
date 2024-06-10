@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { NotFoundError } from 'openai';
+import { NotFoundError, toFile } from 'openai';
 import OpenAI from 'openai';
 import { openaiStore } from '../stores/openai';
 
@@ -694,4 +694,47 @@ export async function addMessageToThread(threadId: string, role: "user" | "assis
 	}
 
 	return;
+}
+
+export async function speechToText(audioBlob: Blob) : Promise<string> {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+
+	try {
+		const file = await toFile(audioBlob, 'audio.ogg');
+		const resp = await openai.audio.transcriptions.create({
+			file: file,
+			model: 'whisper-1',
+			language: 'en',
+			response_format: 'json'
+		});
+
+		return resp.text;
+	} catch (error) {
+		throw new Error(`Error converting audio to text: ${error}`);
+	}
+}
+
+export async function textToSpeech(text: string) : Promise<Blob> {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+
+	try {
+		const resp = await openai.audio.speech.create({
+			input: text,
+			model: 'tts-1',
+			voice: 'alloy',
+		})
+
+		const blob = await resp.blob();
+		return blob;
+	} catch (error) {
+		throw new Error(`Error converting text to audio: ${error}`);
+	}
 }

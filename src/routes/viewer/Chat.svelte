@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
-	import { chatWithAssistant, createThread, deleteThread, addMessageToThread } from '$lib/openai';
+	import { chatWithAssistant, createThread, deleteThread, addMessageToThread, speechToText, textToSpeech } from '$lib/openai';
 	import { faMicrophone, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
     import * as marked from 'marked';
@@ -27,6 +27,7 @@ type Message = {
     host: boolean;
     name: string;
     message: string;
+    audioURL?: string;
 };
 
 let messageFeed: Message[] = [];
@@ -63,7 +64,7 @@ async function addMessage(msg: string, host: boolean): Promise<void> {
     }, 0);
 }
 
-async function sendChatMessage(): Promise<void> {
+async function chat(): Promise<void> {
     if (!currentMessage) {
         return;
     }
@@ -126,7 +127,7 @@ async function onPromptKeydown(event: KeyboardEvent): Promise<void> {
 
     if (['Enter'].includes(event.code)) {
         event.preventDefault();
-        await sendChatMessage();
+        await chat();
     }
 }
 
@@ -233,6 +234,95 @@ function teardown(): void {
 onDestroy(() => {
     teardown();
 });
+
+let mediaRecorder: MediaRecorder;
+let chunks: Blob[] = [];
+
+
+function startRecording() {
+    recording = true;
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+
+            mediaRecorder.ondataavailable = function(e) {
+                chunks.push(e.data);
+            }
+        });
+}
+
+function stopRecording(): Promise<Blob | null> {
+    return new Promise((resolve) => {
+        if (mediaRecorder) {
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+                chunks = [];
+                console.log("Recording stopped");
+                resolve(blob);
+            };
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            mediaRecorder.stop();
+            recording = false;
+        } else {
+            resolve(null);
+            recording = false;
+        }
+    });
+}
+
+
+async function handleRecording() {
+    if (recording) {
+        const audioBlob = await stopRecording();
+
+        console.log("stopped recording");
+        if (!audioBlob) {
+            console.error("No audio blob found");
+            return;
+        }
+
+
+
+
+        const text = await speechToText(audioBlob);
+        if (text) {
+            currentMessage = text;
+            chat();
+            
+            const userURL = URL.createObjectURL(audioBlob);
+            // find latest user message
+            messageFeed[messageFeed.length - 1].audioURL = userURL;
+        }
+    } else {
+        startRecording();
+    }
+}
+
+let convertingToAudio = false;
+
+
+
+async function assistantTextToSpeech(index: number): Promise<void> {
+    try {
+        if (convertingToAudio) {
+            return;
+        }
+
+        const latestMessage = messageFeed[index];
+        if (!latestMessage || latestMessage.host) {
+            return;
+        }
+
+        convertingToAudio = true;
+        const blob = await textToSpeech(latestMessage.message);
+        messageFeed[index].audioURL = URL.createObjectURL(blob);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        convertingToAudio = false;
+    }
+}
 </script>
 
 <div class="grid grid-row-[1fr_auto]">
@@ -276,23 +366,43 @@ onDestroy(() => {
         </div>
 
 
-        {#each messageFeed as bubble}
-            {#if bubble.host === true}
+        {#each messageFeed as msg, index}
+            {#if msg.host === true}
                 <div class="grid grid-cols-[auto_1fr] gap-2">
                     <div class="card p-4 variant-soft rounded-tl-none space-y-2">
                         <header class="flex justify-between items-center">
-                            <p class="font-bold">{bubble.name}</p>
+                            <p class="font-bold">{msg.name}</p>
                         </header>
-                        <p>{bubble.message}</p>
+                        <p>{msg.message}</p>
+                        <footer>
+                            {#if msg.audioURL}
+                                <audio controls>
+                                    <source src={msg.audioURL} type="audio/ogg" />
+                                    Your browser does not support the audio element.
+                                </audio>
+                            {/if}
+                        </footer>
                     </div>
                 </div>
             {:else}
                 <div class="grid grid-cols-[1fr_auto] gap-2">
                     <div class="card p-4 rounded-tr-none space-y-2 variant-soft-primary">
                         <header class="flex justify-between items-center">
-                            <p class="font-bold">{bubble.name}</p>
+                            <p class="font-bold">{msg.name}</p>
                         </header>
-                        {@html markdownToHTML(bubble.message)}
+                        {@html markdownToHTML(msg.message)}
+                        <footer>
+                            {#if msg.audioURL}
+                                <audio controls>
+                                    <source src={msg.audioURL} type="audio/ogg" />
+                                    Your browser does not support the audio element.
+                                </audio>
+                            {:else}
+                                <button class="btn btn-sm variant-filled-primary" on:click={() => assistantTextToSpeech(index)} disabled={convertingToAudio}>
+                                    Convert to audio
+                                </button>
+                            {/if}
+                        </footer>
                     </div>
                 </div>
             {/if}
@@ -305,7 +415,7 @@ onDestroy(() => {
     <!-- Prompt -->
     <section class="border-t border-surface-500/30 p-4" hidden={!scenarioChoosen}>
         <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
-            <button class="input-group-shim {recording ? 'variant-filled-error' : ''}" on:click={() => recording = !recording}>
+            <button class="input-group-shim {recording ? 'variant-filled-error' : ''}" on:click={handleRecording}>
                 <Fa icon={faMicrophone}/>
             </button>
             
@@ -319,7 +429,7 @@ onDestroy(() => {
                 minlength="1"
                 on:keydown={onPromptKeydown}
             ></textarea>
-            <button class={currentMessage ? 'variant-filled-primary' : 'input-group-shim'} on:click={sendChatMessage} disabled={chatProcessing}>
+            <button class={currentMessage ? 'variant-filled-primary' : 'input-group-shim'} on:click={chat} disabled={chatProcessing}>
                 <Fa icon={faPaperPlane} />
             </button>
         </div>
