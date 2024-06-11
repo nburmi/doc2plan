@@ -6,11 +6,12 @@
     import { popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
     import { RangeSlider } from '@skeletonlabs/skeleton';
-    import { clearOpenAI, updateAssistant } from '$lib/openai';
+    import { clearOpenAI, updateAssistant, textToSpeech } from '$lib/openai';
     import { sendErrorToast } from '$lib/alertToast';
+    import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+
 
     let data: OpenAI;
-
     openaiStore.subscribe((value) => {
         if (!value) return;
 
@@ -22,7 +23,10 @@
                 fileId: value.fileId,
                 vectorStoreId: value.vectorStoreId,
                 assistantId: value.assistantId,
-                reset: value.reset
+                reset: value.reset,
+                audioModel: value.audioModel,
+                audioVoice: value.audioVoice,
+                audioSpeed: value.audioSpeed
             };
             return ;
         } 
@@ -33,6 +37,9 @@
         data.vectorStoreId = value.vectorStoreId;
         data.assistantId = value.assistantId;
         data.temperature = value.temperature;
+        data.audioModel = value.audioModel;
+        data.audioVoice = value.audioVoice;
+        data.audioSpeed = value.audioSpeed;
     });
 
     let show = false;
@@ -44,7 +51,7 @@
         IN_PROGRESS = 'In progress'
     }
     let saved: Status = Status.SAVED;
-    const keys: (keyof typeof data)[] = ['apiKey', 'model', 'temperature', 'fileId', 'vectorStoreId', 'assistantId'];
+    const keys: (keyof typeof data)[] = ['apiKey', 'model', 'temperature', 'fileId', 'vectorStoreId', 'assistantId', 'audioModel', 'audioVoice', 'audioSpeed'];
 
     function objectsAreEqual(a: typeof data, b: typeof data, keys: (keyof typeof data)[]) {
         return keys.every(key => a[key] === b[key]);
@@ -68,6 +75,9 @@
             value.apiKey = data.apiKey;
             value.model = data.model;
             value.temperature = data.temperature;
+            value.audioModel = data.audioModel;
+            value.audioVoice = data.audioVoice;
+            value.audioSpeed = data.audioSpeed;
             return value;
         });
 
@@ -112,6 +122,58 @@
         'gpt-3.5-turbo-0125',
         'gpt-3.5-turbo'
     ];
+
+    const voices: string[] = [
+        'alloy',
+        'echo',
+        'fable',
+        'onyx',
+        'nova',
+        'shimmer'
+    ];
+    const voiceModels: string[] = [
+        'tts-1',
+        'tts-1-hd'
+    ];
+
+
+    async function listen() {
+        let model = data.audioModel;
+        let voice = data.audioVoice;
+
+        // find the model in audios
+        let found = audios.find((audio) => audio.model === model && audio.voice === voice && audio.speed === data.audioSpeed);
+        if (found) {
+            return;
+        }
+
+        try {
+            const blob = await textToSpeech("Hello world, what a beautiful day", {
+                model: data.audioModel,
+                voice: data.audioVoice,
+                speed: data.audioSpeed
+            })
+
+            // append to audios
+            audios = [...audios, {
+                model: model,
+                voice: voice,
+                speed: data.audioSpeed,
+                sampleURL: URL.createObjectURL(blob)
+            }];
+        } catch (e: unknown) {
+            sendErrorToast(`listening: ${e}`);
+        }
+    }
+
+    type Audio = {
+        model: string;
+        voice: string;
+        speed: number;
+        sampleURL: string;
+    }
+
+    let audios = [] as Audio[];
 </script>
 
 
@@ -169,6 +231,54 @@
             <input class="input" type="text" placeholder="OpenAI assistant id" bind:value={data.assistantId} disabled/>
         </label>
 
+        <Accordion>
+			<AccordionItem>
+				<svelte:fragment slot="summary">Text to speech</svelte:fragment>
+				<svelte:fragment slot="content">
+					<label class="label">
+                        <span>Select voice</span>
+                        <select class="input" bind:value={data.audioVoice}>
+                            {#each voices as v}
+                                <option value={v}>{v}</option>
+                            {/each}
+                        </select>
+                    </label>
+
+                    <label class="label">
+                        <span>Select model</span>
+                        <select class="input" bind:value={data.audioModel}>
+                            {#each voiceModels as v}
+                                <option value={v}>{v}</option>
+                            {/each}
+                        </select>
+                    </label>
+
+                    <div class="flex flex-col p-4 w-full">
+                        <RangeSlider name="range-slider" bind:value={data.audioSpeed} max={4} min={0.3} step={0.1} ticked={true}>
+                            <div class="flex justify-between items-center">
+                                <div>Speed: {data.audioSpeed}</div>
+                                <div class="text-xs">{data.audioSpeed} / 1</div>
+                            </div>
+                        </RangeSlider>
+                    </div>
+
+                    <!-- listen -->
+                    <button class="btn variant-filled-primary" on:click={listen}>
+                        Listen
+                    </button>
+
+                    <div class="flex flex-col mt-5">
+                        {#each audios as audio}
+                            <p>{audio.model} - {audio.voice} - {audio.speed}</p>
+                            <audio controls>
+                                <source src={audio.sampleURL} type="audio/mpeg" />
+                            </audio>
+                        {/each}
+                    </div>
+				</svelte:fragment>
+			</AccordionItem>
+		</Accordion>
+
 
         <div class="flex flex-row mt-5">
             <button class="btn {saved ? 'variant-filled': 'variant-filled-primary'}" disabled={saved === Status.SAVED} on:click={save}>
@@ -196,6 +306,6 @@
                 <div class="arrow variant-filled-error" />
             </div>
         </div>
-</div>
+    </div>
 </div>
 

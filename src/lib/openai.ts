@@ -718,18 +718,49 @@ export async function speechToText(audioBlob: Blob) : Promise<string> {
 	}
 }
 
-export async function textToSpeech(text: string) : Promise<Blob> {
+interface TTSOptions {
+    model: string;
+    voice: "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
+	speed: number; // Select a value from `0.25` to `4.0`
+}
+
+export async function textToSpeech(text: string, options?: TTSOptions) : Promise<Blob> {
 	const openai = new OpenAI({
 		apiKey: get(openaiStore).apiKey,
 		dangerouslyAllowBrowser: true
 	});
 
+	const model = get(openaiStore).audioModel;
+	const voice = get(openaiStore).audioVoice;
+	const speed = get(openaiStore).audioSpeed;
+
+	if (!options && model && voice) {
+		options = {
+			model: model,
+			voice: voice,
+			speed: speed
+		};
+	}
+
+	if (!options) {
+		options = {
+			model: 'tts-1',
+			voice: 'alloy',
+			speed: 1
+		};
+	}
+
+	// Select a value from `0.25` to `4.0`
+	if (options.speed < 0.25 || options.speed > 4.0) {
+		throw new Error('Speed must be between 0.25 and 4.0');
+	}
 
 	try {
 		const resp = await openai.audio.speech.create({
 			input: text,
-			model: 'tts-1',
-			voice: 'alloy',
+			model: options.model,
+			voice: options.voice,
+			speed: options.speed
 		})
 
 		const blob = await resp.blob();
@@ -738,3 +769,4 @@ export async function textToSpeech(text: string) : Promise<Blob> {
 		throw new Error(`Error converting text to audio: ${error}`);
 	}
 }
+
