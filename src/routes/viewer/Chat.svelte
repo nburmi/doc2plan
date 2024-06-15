@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
 	import { chatWithAssistant, createThread, deleteThread, addMessageToThread, speechToText, textToSpeech } from '$lib/openai';
-	import { faMicrophone, faPaperPlane, faArrowRight, faArrowLeft, faQuestion } from '@fortawesome/free-solid-svg-icons';
+	import { faMicrophone, faPaperPlane, faArrowRight, faArrowLeft, faQuestion, faSpinner } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
     import * as marked from 'marked';
     import DOMPurify from 'dompurify';
@@ -275,7 +275,12 @@ function stopRecording(): Promise<Blob | null> {
                 console.log("Recording stopped");
                 resolve(blob);
             };
-            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            mediaRecorder.stream.getTracks().forEach(track => {
+                track.stop();
+                if (track.readyState == 'ended') {
+                    mediaRecorder.stream.removeTrack(track);
+                }
+            });
             mediaRecorder.stop();
             recording = false;
         } else {
@@ -423,6 +428,7 @@ async function assistantTextToSpeech(index: number): Promise<void> {
 
         {#if chatProcessing}
             <p>Loading..</p>
+            <Fa icon={faSpinner} spin />
         {/if}
     </section>
     <!-- Prompt -->
