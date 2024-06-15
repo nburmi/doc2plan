@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
 	import { chatWithAssistant, createThread, deleteThread, addMessageToThread, speechToText, textToSpeech } from '$lib/openai';
-	import { faMicrophone, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+	import { faMicrophone, faPaperPlane, faArrowRight, faArrowLeft, faQuestion } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
     import * as marked from 'marked';
     import DOMPurify from 'dompurify';
@@ -20,6 +20,8 @@ let recording = false;
 
 export let topic: Topic;
 
+const quizzes = topic.quizzes || [];
+let currentQuizIndex = 0;
 let currentMessage = '';
 
 type Message = {
@@ -31,28 +33,28 @@ type Message = {
 };
 
 let messageFeed: Message[] = [];
-
 let threadId: string;
 
-async function addMessage(msg: string, host: boolean): Promise<void> {
-    const newMessage = {
-        id: messageFeed.length,
-        host,
-        name: host ? 'User' : 'AI Bot',
-        message: msg,
-        color: host ? 'variant-soft-primary' : 'variant-soft-primary'
-    };
+async function addMessage(params : {msg: string, host: boolean, updateFeed: boolean}): Promise<void> {
+    if (params.updateFeed) {
+        const newMessage = {
+            id: messageFeed.length,
+            host: params.host,
+            name: params.host ? 'User' : 'AI Bot',
+            message: params.msg,
+        };
 
-    // Update the message feed
-    messageFeed = [...messageFeed, newMessage];
+        // Update the message feed
+        messageFeed = [...messageFeed, newMessage];
+    }
 
-    const role = host ? 'user' : 'assistant';
+    const role = params.host ? 'user' : 'assistant';
     try {
         if (!threadId) {
             threadId = await createThread();
         }
 
-        await addMessageToThread(threadId, role, msg);
+        await addMessageToThread(threadId, role, params.msg);
     } catch (error) {
         console.error(error);
     }
@@ -156,19 +158,31 @@ async function onCurrentTopicClick(): Promise<void> {
     // send topic information to the AI
     const msg = `Dear AI, I would like to discuss the topic "${topic.title}". Consider the following content: "${topic.content}".`;
     try {
-        await addMessage(msg, true);
+        await addMessage({ msg, host: true, updateFeed: true });
     } catch (error) {
         console.error(error);
     }
 }
 
-function onQuizzesClick(): void {
-    console.log('Quizzes');
+async function onQuizzesClick(index: number): Promise<void> {
+    currentQuizIndex = index;
+    console.log('Quizzes', currentQuizIndex);
+
     scenarioChoosen = true;
     currentScenario = Scenario.Quizzes;
     addChoosenScenario();
 
-    // init quizzes variable
+    const quiz = quizzes[currentQuizIndex];
+    // prompt user should answer the quiz
+    const promptUser = `Dear AI, I would like to go through the quizzes for the topic "${topic.title}". Here is the quiz: "${quiz.question}" and answer: "${quiz.answer}". Please provide feedback on my answer.`;
+    const promptAssistant = `Understood. I will provide feedback on your answer to the quiz: "${quiz.question}" and compare your answer to the correct answer: "${quiz.answer}". Let's start!`;
+
+    try {
+        await addMessage({ msg: promptUser, host: true, updateFeed: false });
+        await addMessage({ msg: promptAssistant, host: false, updateFeed: false });
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function onFeynmanClick(): Promise<void> {
@@ -181,8 +195,8 @@ async function onFeynmanClick(): Promise<void> {
 	const promptAssistant = "Understood. I will be a curious person and only give clues. I will also compare your explanation to the original text to see if you missed anything or made mistakes. If so, I will guide you subtly without directly pointing it out. Let's start!"
 
     try {
-        await addMessage(promptUser, true);
-        await addMessage(promptAssistant, false);
+        await addMessage({ msg: promptUser, host: true, updateFeed: true });
+        await addMessage({ msg: promptAssistant, host: false, updateFeed: true });
     } catch (error) {
         console.error(error);
     }
@@ -211,7 +225,7 @@ function addChoosenScenario(): void {
                 id: messageFeed.length,
                 host: false,
                 name: 'AI Bot',
-                message: 'You have choosen to go through quizzes for the current topic.',
+                message: `You have choosen to go through quizzes for the current topic. Quiz ${currentQuizIndex + 1}: ${quizzes[currentQuizIndex].question}`,
             }];
             break;
         case Scenario.Feynman:
@@ -350,10 +364,12 @@ async function assistantTextToSpeech(index: number): Promise<void> {
                         Conversation about a current topic "{topic.title}"
                         <button class="btn btn-sm variant-filled-primary" on:click={onCurrentTopicClick}>Start</button>
                     </div>
-                    <div class="flex-grow card p-4">
-                        Go through quizzes for topic "{topic.title}" (coming soon)
-                        <button class="btn btn-sm variant-filled-primary" on:click={onQuizzesClick}>Start</button>
-                    </div>
+                    {#if quizzes.length > 0}
+                        <div class="flex-grow card p-4">
+                            Go through quizzes for topic "{topic.title}"
+                            <button class="btn btn-sm variant-filled-primary" on:click={() => onQuizzesClick(0)}>Start</button>
+                        </div>
+                    {/if}
                     <div class="flex-grow card p-4">
                         <p>Explain topic "{topic.title}" using Feynman technique</p>
                         <button class="btn btn-sm variant-filled-primary" on:click={onFeynmanClick}>Start</button>
@@ -430,6 +446,27 @@ async function assistantTextToSpeech(index: number): Promise<void> {
                 <Fa icon={faPaperPlane} />
             </button>
         </div>
+
+        {#if currentScenario === Scenario.Quizzes}
+            <div class="btn-group variant-filled mt-4">
+                {#if currentQuizIndex > 0}
+                    <button on:click={() => onQuizzesClick(currentQuizIndex-1)}>
+                        <Fa icon={faArrowLeft} />
+                    </button>
+                {/if}
+                
+                <button on:click={() => alert(`Answer: ${quizzes[currentQuizIndex].answer}`)}>
+                    <Fa icon={faQuestion} />
+                </button>
+
+                {#if currentQuizIndex < quizzes.length - 1}
+                    <button on:click={() => onQuizzesClick(currentQuizIndex+1)}>
+                        <Fa icon={faArrowRight} />
+                    </button>
+                {/if}
+            </div>
+        {/if}
+
     </section>
 </div>
 
