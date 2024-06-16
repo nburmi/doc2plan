@@ -3,7 +3,7 @@
 	import { RecursiveTreeView } from '@skeletonlabs/skeleton';
 	import { planStore } from '../../stores/plan';
 	import { get } from 'svelte/store';
-    import * as marked from 'marked';
+	import * as marked from 'marked';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import TreeViewNodeContent from './TreeViewNodeContent.svelte';
 	import SplitPane from './SplitPane.svelte';
@@ -11,18 +11,27 @@
 	import Chat from './Chat.svelte';
 	import { faComments } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
+	import { openaiStore } from '../../stores/openai';
+	import { popup } from '@skeletonlabs/skeleton';
+	import type { PopupSettings } from '@skeletonlabs/skeleton';
 
 	const plan = get(planStore);
+	const aiEnabled = get(openaiStore).assistantId !== '';
+	const popupHover: PopupSettings = {
+		event: 'hover',
+		target: 'popupHover',
+		placement: 'top'
+	};
 
 	let chatOpened = false;
-	let checkedNodes : string[] = [];
+	let checkedNodes: string[] = [];
 	let indeterminateNodes: string[] = [];
 	let chapters = chaptersToTree(plan.chapters);
-	
+
 	function chaptersToTree(chapters: Chapter[]): TreeViewNode[] {
 		let items: TreeViewNode[] = [];
 
-		chapters.forEach(chapter => {
+		chapters.forEach((chapter) => {
 			const chapterID = makeChapterID(chapter);
 			if (chapter.done) {
 				insertChecked(chapterID);
@@ -38,18 +47,21 @@
 				content: TreeViewNodeContent,
 				contentProps: {
 					empty: chapter.keyTopics ? false : true,
-					content: chapter.name,
+					content: chapter.name
 				},
-				children: result.nodes,
+				children: result.nodes
 			});
 		});
 
 		return items;
 	}
 
-	function makeChapterID (chapter: Chapter) {return `chapter-${chapter.id}`;};
-	function makeTopicID (parent: string, topic: Topic) { return `${parent}-topic-${topic.id}`;};
-
+	function makeChapterID(chapter: Chapter) {
+		return `chapter-${chapter.id}`;
+	}
+	function makeTopicID(parent: string, topic: Topic) {
+		return `${parent}-topic-${topic.id}`;
+	}
 
 	function insertParent(parent: string): boolean {
 		// isert into intermediate nodes if parent is not checked
@@ -74,17 +86,20 @@
 		}
 	}
 
-	function topicsToTree(parent: string, topics: Topic[]): { nodes: TreeViewNode[], indeterminateParent: boolean } {
+	function topicsToTree(
+		parent: string,
+		topics: Topic[]
+	): { nodes: TreeViewNode[]; indeterminateParent: boolean } {
 		let items: TreeViewNode[] = [];
 
 		let indeterminateParent = false;
-		topics.forEach(topic => {
+		topics.forEach((topic) => {
 			const topicID = makeTopicID(parent, topic);
 			if (topic.done) {
 				insertParent(parent);
 				insertChecked(topicID);
 				indeterminateParent = true;
-			};
+			}
 
 			const result = topicsToTree(topicID, topic.children ? topic.children : []);
 			items.push({
@@ -93,8 +108,8 @@
 				content: TreeViewNodeContent,
 				contentProps: {
 					empty: topic.content ? false : true,
-					content: topic.title,
-				},
+					content: topic.title
+				}
 			});
 			indeterminateParent = result.indeterminateParent || indeterminateParent;
 		});
@@ -107,10 +122,10 @@
 	}
 
 	$: {
-		get(planStore).chapters.forEach(chapter => {
+		get(planStore).chapters.forEach((chapter) => {
 			chapter.done = false;
 
-			chapter.topics.forEach(topic => {
+			chapter.topics.forEach((topic) => {
 				topic.done = false;
 
 				const queue = [];
@@ -132,7 +147,7 @@
 			});
 		});
 
-		checkedNodes.forEach(id => {
+		checkedNodes.forEach((id) => {
 			const chapter = findChapter(id);
 			if (chapter) {
 				chapter.done = true;
@@ -217,26 +232,25 @@
 	}
 </script>
 
-
 <SplitPane>
 	<div slot="left">
 		<div class="space-y-4">
-			<h1 class="card-header text-center">Plan: {plan.name}</h1>			
-			<RecursiveTreeView 
-			selection 
-			multiple 
-			relational 
-			nodes={chapters} 
-			bind:checkedNodes={checkedNodes}
-			bind:indeterminateNodes={indeterminateNodes}
-			on:click={clickHandler}
-			width="w-fit"
+			<h1 class="card-header text-center">Plan: {plan.name}</h1>
+			<RecursiveTreeView
+				selection
+				multiple
+				relational
+				nodes={chapters}
+				bind:checkedNodes
+				bind:indeterminateNodes
+				on:click={clickHandler}
+				width="w-fit"
 			/>
 		</div>
 	</div>
 	<div slot="right">
 		{#if chatOpened && currentTopic}
-			<Chat topic={currentTopic}/>
+			<Chat topic={currentTopic} />
 		{:else}
 			<div class="container space-y-4 p-4">
 				{#if currentChapter && !currentTopic}
@@ -244,12 +258,12 @@
 					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 					{@html markdownToHTML(currentChapter.keyTopics ? currentChapter.keyTopics : '')}
 				{/if}
-		
+
 				{#if currentTopic}
 					<h1>{currentTopic.title}</h1>
 					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 					{@html markdownToHTML(currentTopic.content ? currentTopic.content : '')}
-		
+
 					{#if currentTopic.quizzes}
 						<h2>Quizes</h2>
 						<Accordion>
@@ -267,16 +281,26 @@
 				{/if}
 			</div>
 		{/if}
-		
-		<button class="btn variant-filled-secondary m-4" on:click={() => chatOpened = !chatOpened}>
+
+		<button
+			class="btn variant-filled-secondary m-4 {currentTopic ? '' : 'invisible'}"
+			on:click={() => (chatOpened = !chatOpened)}
+			use:popup={popupHover}
+			disabled={!aiEnabled}
+		>
 			<i>
-			{#if chatOpened}
-				Close Chat
-			{:else}
-				Open Chat
-			{/if}
+				{#if chatOpened}
+					Close Chat
+				{:else}
+					Open Chat
+				{/if}
 			</i>
 			<Fa icon={faComments} />
 		</button>
+
+		<div class="card p-4 variant-filled-error {aiEnabled ? 'invisible' : ''}" data-popup="popupHover">
+			<p>Create new AI assistant (Creator -> With AI)</p>
+			<div class="arrow variant-filled-error" />
+		</div>
 	</div>
 </SplitPane>
