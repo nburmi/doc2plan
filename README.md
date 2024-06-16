@@ -50,7 +50,11 @@ The application includes a settings page where users can manage their OpenAI set
 - **Plan Import/Export**: Import and export your learning plans to and from JSON format for easy sharing and management.
 - **Assistant Management**: Manage OpenAI settings and assistants, including creation, updating, and deletion of AI assistants as required.
 - **Customizable Settings**: Manage OpenAI settings including API Key, model, temperature, assistant ID, vector store ID, and file ID used for vector creation.
+- **Viewer Chat**: Interact with the AI assistant through a chat interface to ask questions and get answers related to the content.
+- **Viewer Chat: Text to speech**: Support for converting text to speech, allowing users to listen to the content.
+- **Viewer Chat: Speech to text**: Support for converting speech to text, enabling users to input content through voice.
 - **Integrate with Various RAG(in plans)**: This feature allows you to connect and utilize different Retrieval-Augmented Generation (RAG) for content extraction and question generation. It's not limited to OpenAI's RAG Assistant, offering you the flexibility to choose the RAG that best suits your needs.
+
 
 ## Getting Started
 

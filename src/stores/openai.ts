@@ -14,5 +14,8 @@ export const openaiStore = persisted<OpenAI>('openai', {
 		this.vectorStoreId = '';
 		this.model = 'gpt-3.5-turbo-0125';
 		this.temperature = 0.2;
-	}
+	},
+	audioModel: 'tts-1',
+	audioVoice: 'alloy',
+	audioSpeed: 1,
 });

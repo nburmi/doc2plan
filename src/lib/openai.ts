@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { NotFoundError } from 'openai';
+import { NotFoundError, toFile } from 'openai';
 import OpenAI from 'openai';
 import { openaiStore } from '../stores/openai';
 
@@ -611,3 +611,162 @@ function parseQuestions(questions: string): Quiz[] {
 
 	return quizzes;
 }
+
+export async function createThread(): Promise<string> {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		const thread = await openai.beta.threads.create();
+		return thread.id;
+	} catch (error) {
+		throw new Error(`Error creating thread: ${error}`);
+	}
+}
+
+export async function deleteThread(threadId: string) {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		await openai.beta.threads.del(threadId);
+	} catch (error) {
+		throw new Error(`Error deleting thread: ${error}`);
+	}
+}
+
+export async function chatWithAssistant(threadId: string, message: string): Promise<string> {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		await openai.beta.threads.messages.create(threadId, {
+			role: 'user',
+			content: message
+		});
+
+		let run = await openai.beta.threads.runs.create(threadId, {
+			assistant_id: get(openaiStore).assistantId,
+			instructions: 'Chat with the assistant about book content.'
+		});
+
+		while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
+			await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second
+			run = await openai.beta.threads.runs.retrieve(run.thread_id, run.id);
+		}
+
+		const messages = await openai.beta.threads.messages.list(threadId, { limit: 1, order: 'desc' });
+		if (messages.data.length === 0) {
+			throw new Error('Error extracting topics: No data returned');
+		}
+
+		const response = messages.data[0];
+		let content = '';
+		for (const c of response.content) {
+			if (c.type === 'text') content += c.text.value + '\n';
+		}
+
+		return content;
+	} catch (error) {
+		throw new Error(`Error chat with created assistant: ${error}`);
+	}
+}
+
+export async function addMessageToThread(threadId: string, role: "user" | "assistant", content: string) {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		await openai.beta.threads.messages.create(threadId, {
+			role: role,
+			content: content
+		});
+	} catch (error) {
+		throw new Error(`Error adding message to thread: ${error}`);
+	}
+
+	return;
+}
+
+export async function speechToText(audioBlob: Blob) : Promise<string> {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+
+	try {
+		const file = await toFile(audioBlob, 'audio.ogg');
+		const resp = await openai.audio.transcriptions.create({
+			file: file,
+			model: 'whisper-1',
+			language: 'en',
+			response_format: 'json'
+		});
+
+		return resp.text;
+	} catch (error) {
+		throw new Error(`Error converting audio to text: ${error}`);
+	}
+}
+
+interface TTSOptions {
+    model: string;
+    voice: "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
+	speed: number; // Select a value from `0.25` to `4.0`
+}
+
+export async function textToSpeech(text: string, options?: TTSOptions) : Promise<Blob> {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	const model = get(openaiStore).audioModel;
+	const voice = get(openaiStore).audioVoice;
+	const speed = get(openaiStore).audioSpeed;
+
+	if (!options && model && voice) {
+		options = {
+			model: model,
+			voice: voice,
+			speed: speed
+		};
+	}
+
+	if (!options) {
+		options = {
+			model: 'tts-1',
+			voice: 'alloy',
+			speed: 1
+		};
+	}
+
+	// Select a value from `0.25` to `4.0`
+	if (options.speed < 0.25 || options.speed > 4.0) {
+		throw new Error('Speed must be between 0.25 and 4.0');
+	}
+
+	try {
+		const resp = await openai.audio.speech.create({
+			input: text,
+			model: options.model,
+			voice: options.voice,
+			speed: options.speed
+		})
+
+		const blob = await resp.blob();
+		return blob;
+	} catch (error) {
+		throw new Error(`Error converting text to audio: ${error}`);
+	}
+}
+
