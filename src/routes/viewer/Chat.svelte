@@ -362,22 +362,52 @@ async function assistantTextToSpeech(index: number): Promise<void> {
                 </header>
                 <div class="flex">
                     <div class="flex-grow card p-4">
-                        <p>Custom Conversation</p>
-                        <button class="btn btn-sm variant-filled-primary" on:click={onMyPromptClick}>Start</button>
+                        <header class="card-header">
+                            <h2 class="card-title">Custom Conversation</h2>
+                        </header>
+                        <section class="p-4">
+                            Start a conversation on a topic of your choice with the AI.
+                        </section>
+                        <footer class="card-footer">
+                            <button class="btn variant-filled-primary" on:click={onMyPromptClick}>Start</button>
+                        </footer>
                     </div>
                     <div class="flex-grow card p-4">
-                        Conversation about a current topic "{topic.title}"
-                        <button class="btn btn-sm variant-filled-primary" on:click={onCurrentTopicClick}>Start</button>
+                        <header class="card-header">
+                            <h2 class="card-title">Current Topic</h2>
+                        </header>
+                        <section class="p-4">
+                            Start a conversation on the current topic "{topic.title}" with the AI.
+                        </section>
+                        <footer class="card-footer">
+                            <button class="btn variant-filled-primary" on:click={onCurrentTopicClick}>Start</button>
+                        </footer>
                     </div>
                     {#if quizzes.length > 0}
                         <div class="flex-grow card p-4">
-                            Go through quizzes for topic "{topic.title}"
-                            <button class="btn btn-sm variant-filled-primary" on:click={() => onQuizzesClick(0)}>Start</button>
+                            <header class="card-header">
+                                <h2 class="card-title">Quizzes</h2>
+                            </header>
+                            <section class="p-4">
+                                Go through quizzes for topic "{topic.title}"
+                            </section>
+                            <footer class="card-footer">
+                                <button class="btn variant-filled-primary" on:click={() => onQuizzesClick(0)}>Start</button>
+                            </footer>
                         </div>
                     {/if}
                     <div class="flex-grow card p-4">
-                        <p>Explain topic "{topic.title}" using Feynman technique</p>
-                        <button class="btn btn-sm variant-filled-primary" on:click={onFeynmanClick}>Start</button>
+                        <header class="card-header">
+                            <h2 class="card-title">Feynman Technique</h2>
+                        </header>
+                        <section class="p-4">
+                            Explain topic "{topic.title}" using Feynman technique.<br>
+                            Feynman technique is a method to learn and understand complex topics by teaching them to someone else.<br>
+                            In this case, the AI will act as a curious person and provide feedback on your explanation.<br>
+                        </section>
+                        <footer class="card-footer">
+                            <button class="btn variant-filled-primary" on:click={onFeynmanClick}>Start</button>
+                        </footer>
                     </div>
                 </div>
             </div>
