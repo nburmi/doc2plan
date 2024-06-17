@@ -259,7 +259,7 @@
 
 		<label class="label">
 			<span>Document for assistant file search.</span>
-			<input class="input" type="file" bind:files={files} accept=".pdf"/>
+			<input class="input" type="file" bind:files={files} accept=".pdf,.md,.docx"/>
 		</label>
 
 		<ul>

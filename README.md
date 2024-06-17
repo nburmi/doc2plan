@@ -14,7 +14,7 @@ The Creator allows users to either manually construct a learning plan or use AI 
 
 Follow this path to create a learning plan with AI assistance:
 
-1. Upload a book.
+1. Upload a book (pdf, md, docx).
 2. Extract chapters.
 3. Select chapter and extract key topics and create topics.
 4. Generate content for each topic.
