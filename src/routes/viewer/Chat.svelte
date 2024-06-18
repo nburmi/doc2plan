@@ -6,7 +6,9 @@
 		deleteThread,
 		addMessageToThread,
 		speechToText,
-		textToSpeech
+		textToSpeech,
+		clearOpenAI,
+		createEmptyAssistant
 	} from '$lib/openai';
 	import {
 		faMicrophone,
@@ -21,6 +23,8 @@
 	import DOMPurify from 'dompurify';
 	import { popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
+	import { openaiStore } from '../../stores/openai';
+	import { get } from 'svelte/store';
 
 	const popupHover: PopupSettings = {
 		event: 'hover',
@@ -55,6 +59,15 @@
 
 	let messageFeed: Message[] = [];
 	let threadId: string;
+	let assistantId: string = get(openaiStore).assistantId;
+
+	async function createAssistant(): Promise<void> {
+		if (!assistantId) {
+			assistantId = await createEmptyAssistant();
+		}
+	}
+
+	createAssistant();
 
 	async function addMessage(params: {
 		msg: string;
@@ -123,7 +136,11 @@
 				threadId = await createThread();
 			}
 
-			const aiResponse = await chatWithAssistant(threadId, msg);
+			const aiResponse = await chatWithAssistant({
+				threadId: threadId,
+				message: msg,
+				assistantId: assistantId
+			});
 			const newAiMessage = {
 				id: messageFeed.length,
 				host: false,
@@ -280,6 +297,9 @@
 	function teardown(): void {
 		if (threadId) {
 			deleteThread(threadId);
+		}
+		if (assistantId && get(openaiStore).assistantId !== assistantId) {
+			clearOpenAI({ assistantId: assistantId });
 		}
 	}
 

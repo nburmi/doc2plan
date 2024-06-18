@@ -16,7 +16,7 @@
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 
 	const plan = get(planStore);
-	const aiEnabled = get(openaiStore).assistantId !== '';
+	const aiEnabled = get(openaiStore).apiKey !== '';
 	const popupHover: PopupSettings = {
 		event: 'hover',
 		target: 'popupHover',
@@ -299,7 +299,7 @@
 		</button>
 
 		<div class="card p-4 variant-filled-error {aiEnabled ? 'invisible' : ''}" data-popup="popupHover">
-			<p>Create new AI assistant (Creator -> With AI)</p>
+			<p>Fill (Settings -> OpenAI key) or/and create new AI assistant with your book content (Creator -> With AI)</p>
 			<div class="arrow variant-filled-error" />
 		</div>
 	</div>

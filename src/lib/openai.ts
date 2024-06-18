@@ -639,20 +639,20 @@ export async function deleteThread(threadId: string) {
 	}
 }
 
-export async function chatWithAssistant(threadId: string, message: string): Promise<string> {
+export async function chatWithAssistant(params: {threadId: string, message: string, assistantId: string}): Promise<string> {
 	const openai = new OpenAI({
 		apiKey: get(openaiStore).apiKey,
 		dangerouslyAllowBrowser: true
 	});
 
 	try {
-		await openai.beta.threads.messages.create(threadId, {
+		await openai.beta.threads.messages.create(params.threadId, {
 			role: 'user',
-			content: message
+			content: params.message
 		});
 
-		let run = await openai.beta.threads.runs.create(threadId, {
-			assistant_id: get(openaiStore).assistantId,
+		let run = await openai.beta.threads.runs.create(params.threadId, {
+			assistant_id: params.assistantId,
 			instructions: 'Chat with the assistant about book content.'
 		});
 
@@ -661,7 +661,7 @@ export async function chatWithAssistant(threadId: string, message: string): Prom
 			run = await openai.beta.threads.runs.retrieve(run.thread_id, run.id);
 		}
 
-		const messages = await openai.beta.threads.messages.list(threadId, { limit: 1, order: 'desc' });
+		const messages = await openai.beta.threads.messages.list(params.threadId, { limit: 1, order: 'desc' });
 		if (messages.data.length === 0) {
 			throw new Error('Error extracting topics: No data returned');
 		}
@@ -770,3 +770,44 @@ export async function textToSpeech(text: string, options?: TTSOptions) : Promise
 	}
 }
 
+export async function deleteOpenAIAssistant(assistantId: string) {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		await openai.beta.assistants.del(assistantId);
+	} catch (error) {
+		throw new Error(`Error deleting assistant: ${error}`);
+	}
+}
+
+// create a temporary assistant
+export async function createEmptyAssistant(): Promise<string> {
+	const params = {
+		name: 'ihaveaplan',
+		description: 'Chat with the assistant.',
+		instructions:'You are helpfull assistant.',
+		model: get(openaiStore).model,
+		temperature: get(openaiStore).temperature,
+	};
+
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		const response = await openai.beta.assistants.create({
+			model: params.model,
+			description: params.description,
+			instructions: params.instructions,
+			name: params.name,
+			temperature: params.temperature,
+		});
+		return response.id;
+	} catch (error) {
+		throw new Error(`Error creating assistant: ${error}`);
+	}
+}
