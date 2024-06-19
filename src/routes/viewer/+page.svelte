@@ -215,11 +215,11 @@
 				return topic;
 			}
 
-			if (!id.startsWith(topicID)) {
+			if (!topicID.startsWith(id)) {
 				continue;
 			}
 
-			if (topic.children) {
+			if (topic.children && topic.children.length > 0) {
 				return recursiveFindTopic(id, topicID, topic.children);
 			}
 		}
