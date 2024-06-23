@@ -261,7 +261,7 @@
 					{@html markdownToHTML(currentTopic.content ? currentTopic.content : '')}
 
 					{#if currentTopic.quizzes}
-						<h2>Quizes</h2>
+						<h2>Quizzes</h2>
 						<Accordion>
 							{#each currentTopic.quizzes as quiz}
 								<AccordionItem>
