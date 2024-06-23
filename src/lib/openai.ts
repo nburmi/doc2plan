@@ -509,7 +509,7 @@ export async function generateTopicContent(chapter: string, path: string): Promi
 	}
 }
 
-export async function generateQuizes(
+export async function generateQuizzes(
 	chapter: string,
 	path: string,
 	content: string

@@ -1,6 +1,6 @@
 <script lang="ts">
     import TopicComponent from './TopicComponent.svelte';
-    import Quizes from './Quizes.svelte';
+    import Quizzes from './Quizzes.svelte';
     import { createEventDispatcher } from 'svelte';
     import { Fa } from 'svelte-fa';
     import { faTrash, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -51,7 +51,7 @@
         ];
     };
 
-    const handleUpdateQuizes = (event: CustomEvent) => {
+    const handleUpdateQuizzes = (event: CustomEvent) => {
         topic.quizzes = event.detail.quizzes;
         updateTopic();
     };
@@ -129,14 +129,14 @@
     {/if}
 
     <!-- quizzes -->
-    <h3>Quizes:</h3>
-    <Quizes 
+    <h3>Quizzes:</h3>
+    <Quizzes 
     topicContent={topic.content} 
     topicPath={topic.path} 
     chapterName={chapterName} 
     quizzes={topic.quizzes}
     withAI={withAI}
-    on:updateQuizes={handleUpdateQuizes}/>
+    on:updateQuizzes={handleUpdateQuizzes}/>
 
     <h3>Subtopics: </h3>
     <div class="flex">

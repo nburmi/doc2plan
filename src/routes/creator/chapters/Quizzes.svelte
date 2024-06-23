@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { faPlus, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-	import { generateQuizes as aiGenerateQuizes } from '$lib/openai';
-	import { generateQuizzesFromContent as aiGenerateQuizesFromContent } from '$lib/openai';
+	import { generateQuizzes as aiGenerateQuizzes } from '$lib/openai';
+	import { generateQuizzesFromContent as aiGenerateQuizzesFromContent } from '$lib/openai';
 	import QuizComponent from './QuizComponent.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { Fa } from 'svelte-fa';
@@ -36,14 +36,14 @@
 			}
 		];
 
-		dispatch('updateQuizes', { quizzes });
+		dispatch('updateQuizzes', { quizzes });
 	};
 
 	const handleDelete = (event: CustomEvent) => {
 		if (!quizzes) return;
 
 		quizzes = quizzes.filter((q) => q.id !== event.detail.id);
-		dispatch('updateQuizes', { quizzes });
+		dispatch('updateQuizzes', { quizzes });
 	};
 
 	const handleUpdate = (event: CustomEvent) => {
@@ -53,10 +53,10 @@
 		if (index === -1) return;
 
 		quizzes[index] = event.detail.quiz;
-		dispatch('updateQuizes', { quizzes });
+		dispatch('updateQuizzes', { quizzes });
 	};
 
-	async function generateQuizes() {
+	async function generateQuizzes() {
 		if (!topicContent) {
 			sendErrorToast('No topic content to generate quizzes');
 			return;
@@ -65,12 +65,12 @@
 		loading = true;
 		try {
 			if (withAI.assistant) {
-				quizzes = await aiGenerateQuizes(chapterName, topicPath, topicContent);
+				quizzes = await aiGenerateQuizzes(chapterName, topicPath, topicContent);
 			} else {
-				quizzes = await aiGenerateQuizesFromContent(topicContent);
+				quizzes = await aiGenerateQuizzesFromContent(topicContent);
 			}
 
-			dispatch('updateQuizes', { quizzes });
+			dispatch('updateQuizzes', { quizzes });
 		} catch (error: unknown) {
 			sendErrorToast(`generate quizzes: ${error}`);
 		} finally {
@@ -103,7 +103,7 @@
 		<!-- button AI generate -->
 		<button
 			class="btn btn-sm variant-filled-secondary"
-			on:click={generateQuizes}
+			on:click={generateQuizzes}
 			disabled={loading}
 		>
 			{#if loading}
