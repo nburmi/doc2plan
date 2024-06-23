@@ -8,7 +8,7 @@
 
     export let topics: Topic[];
     export let chapter_id: number;
-    export let withAI: boolean;
+    export let withAI: aiOption;
 
     const addTopic = () => {
         let max_id = 0;

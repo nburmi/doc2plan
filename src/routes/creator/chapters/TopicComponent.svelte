@@ -11,7 +11,7 @@
 
     export let topic: Topic;
     export let chapterName: string;
-    export let withAI: boolean;
+    export let withAI: aiOption;
 
     let loading = false;
 
@@ -99,7 +99,7 @@
 
 
 <div class="flex flex-col min-w-full border border-surface-500 rounded-container-token p-4 space-y-4 ">
-    {#if withAI}
+    {#if withAI.assistant}
     <label class="label">
         <input class="input" type="text" placeholder="Path to content: Topic > Subtopic" bind:value={topic.path} on:change={updateTopic} required/>
     </label>
@@ -116,7 +116,7 @@
     </label>
 
     <!-- if with AI then show button regenerate -->
-    {#if withAI}
+    {#if withAI.assistant}
         <div>
             <button class="btn btn-sm variant-filled-secondary" on:click={generateContent} disabled={loading}>
                 {#if loading}

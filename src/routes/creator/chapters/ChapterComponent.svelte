@@ -10,7 +10,10 @@
 
     export let chapter: Chapter;
 
-    const withAI = get(openaiStore).assistantId !== '';
+    const withAI: aiOption = {
+        api: get(openaiStore).apiKey !== '',
+        assistant: get(openaiStore).assistantId !== ''
+    }
 
     let loading = false;
     async function findKeyTopics() {
@@ -41,7 +44,7 @@
 </script>
 
 <section>
-    {#if withAI}
+    {#if withAI.assistant}
         <textarea bind:value={chapter.keyTopics} class="textarea" placeholder="Key topics"></textarea>
         <button class="btn btn-sm variant-filled-secondary" on:click={findKeyTopics} disabled={loading}>
             {#if loading}
