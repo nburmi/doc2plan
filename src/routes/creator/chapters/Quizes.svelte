@@ -62,9 +62,6 @@
 			return;
 		}
 
-        console.log(withAI); //
-
-        debugger;
 		loading = true;
 		try {
 			if (withAI.assistant) {
