@@ -1,3 +1,5 @@
+[![ESLint check](https://github.com/nburmi/doc2plan/actions/workflows/eslint.yml/badge.svg)](https://github.com/nburmi/doc2plan/actions/workflows/eslint.yml)
+
 # Learning Plan Creator and Viewer
 
 This project is under development.
