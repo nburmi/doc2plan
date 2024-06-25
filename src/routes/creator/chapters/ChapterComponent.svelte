@@ -13,7 +13,7 @@
     const withAI: aiOption = {
         api: get(openaiStore).apiKey !== '',
         assistant: get(openaiStore).assistantId !== ''
-    }
+    };
 
     let loading = false;
     async function findKeyTopics() {

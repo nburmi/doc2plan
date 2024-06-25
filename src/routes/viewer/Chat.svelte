@@ -25,6 +25,7 @@
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import { openaiStore } from '../../stores/openai';
 	import { get } from 'svelte/store';
+	import { sendErrorToast } from '$lib/alertToast';
 
 	const popupHover: PopupSettings = {
 		event: 'hover',
@@ -94,7 +95,7 @@
 
 			await addMessageToThread(threadId, role, params.msg);
 		} catch (error) {
-			console.error(error);
+			sendErrorToast(`failed to add message: ${error}`);
 		}
 
 		// Smooth scroll to bottom
@@ -151,7 +152,7 @@
 			// Update the message feed
 			messageFeed = [...messageFeed, newAiMessage];
 		} catch (error) {
-			console.error(error);
+			sendErrorToast(`failed to chat: ${error}`);
 		} finally {
 			chatProcessing = false;
 		}
@@ -185,14 +186,12 @@
 	let currentScenario: Scenario;
 
 	function onMyPromptClick(): void {
-		console.log('My Prompt');
 		scenarioChoosen = true;
 		currentScenario = Scenario.MyPrompt;
 		addChoosenScenario();
 	}
 
 	async function onCurrentTopicClick(): Promise<void> {
-		console.log('Current Topic');
 		scenarioChoosen = true;
 		currentScenario = Scenario.CurrentTopic;
 		addChoosenScenario();
@@ -202,14 +201,12 @@
 		try {
 			await addMessage({ msg, host: true, updateFeed: true });
 		} catch (error) {
-			console.error(error);
+			sendErrorToast(`failed to start current topic: ${error}`);
 		}
 	}
 
 	async function onQuizzesClick(index: number): Promise<void> {
 		currentQuizIndex = index;
-		console.log('Quizzes', currentQuizIndex);
-
 		scenarioChoosen = true;
 		currentScenario = Scenario.Quizzes;
 		addChoosenScenario();
@@ -223,12 +220,11 @@
 			await addMessage({ msg: promptUser, host: true, updateFeed: false });
 			await addMessage({ msg: promptAssistant, host: false, updateFeed: false });
 		} catch (error) {
-			console.error(error);
+			sendErrorToast(`failed to start quizzes: ${error}`);
 		}
 	}
 
 	async function onFeynmanClick(): Promise<void> {
-		console.log('Feynman');
 		scenarioChoosen = true;
 		currentScenario = Scenario.Feynman;
 		addChoosenScenario();
@@ -241,7 +237,7 @@
 			await addMessage({ msg: promptUser, host: true, updateFeed: true });
 			await addMessage({ msg: promptAssistant, host: false, updateFeed: true });
 		} catch (error) {
-			console.error(error);
+			sendErrorToast(`failed to start Feynman: ${error}`);
 		}
 	}
 
@@ -328,7 +324,6 @@
 				mediaRecorder.onstop = () => {
 					const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
 					chunks = [];
-					console.log('Recording stopped');
 					resolve(blob);
 				};
 				mediaRecorder.stream.getTracks().forEach((track) => {
@@ -349,10 +344,8 @@
 	async function handleRecording() {
 		if (recording) {
 			const audioBlob = await stopRecording();
-
-			console.log('stopped recording');
 			if (!audioBlob) {
-				console.error('No audio blob found');
+				sendErrorToast('no audio blob found');
 				return;
 			}
 
@@ -387,7 +380,7 @@
 			const blob = await textToSpeech(latestMessage.message);
 			messageFeed[index].audioURL = URL.createObjectURL(blob);
 		} catch (error) {
-			console.error(error);
+			sendErrorToast(`failed to convert to audio: ${error}`);
 		} finally {
 			convertingToAudio = false;
 		}
@@ -505,6 +498,7 @@
 						<header class="flex justify-between items-center">
 							<p class="font-bold">{msg.name}</p>
 						</header>
+						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 						{@html markdownToHTML(msg.message)}
 						<footer>
 							{#if msg.audioURL}
