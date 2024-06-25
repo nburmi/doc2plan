@@ -740,7 +740,7 @@ export async function chatWithAssistant(params: {threadId: string, message: stri
 	}
 }
 
-export async function addMessageToThread(threadId: string, role: "user" | "assistant", content: string) {
+export async function addMessageToThread(threadId: string, role: 'assistant' | 'user', content: string) {
 	const openai = new OpenAI({
 		apiKey: get(openaiStore).apiKey,
 		dangerouslyAllowBrowser: true
@@ -782,7 +782,7 @@ export async function speechToText(audioBlob: Blob) : Promise<string> {
 
 interface TTSOptions {
     model: string;
-    voice: "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
+    voice: 'alloy' | 'echo' | 'fable' | 'nova' | 'onyx' | 'shimmer';
 	speed: number; // Select a value from `0.25` to `4.0`
 }
 
@@ -823,7 +823,7 @@ export async function textToSpeech(text: string, options?: TTSOptions) : Promise
 			model: options.model,
 			voice: options.voice,
 			speed: options.speed
-		})
+		});
 
 		const blob = await resp.blob();
 		return blob;

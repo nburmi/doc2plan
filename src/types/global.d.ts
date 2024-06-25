@@ -30,7 +30,7 @@ declare global {
 		done: boolean;
 	};
 
-	OpenAIVoices: "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
+	OpenAIVoices: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
 
 	type OpenAI = {
 		apiKey: string;
