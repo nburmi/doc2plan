@@ -13,6 +13,8 @@
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 </script>
+
+<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 <svelte:head>{@html '<script>(' + autoModeWatcher.toString() + ')();</script>'}</svelte:head>
 
 <Toast />
