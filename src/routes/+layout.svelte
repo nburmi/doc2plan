@@ -4,7 +4,6 @@
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import { storePopup } from '@skeletonlabs/skeleton';
-	import { onMount } from 'svelte';
 	import { autoModeWatcher } from '@skeletonlabs/skeleton';
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
@@ -13,10 +12,10 @@
 	initializeStores();
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
-	onMount(() => {										
-		autoModeWatcher();
-	});
 </script>
+
+<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+<svelte:head>{@html '<script>(' + autoModeWatcher.toString() + ')();</script>'}</svelte:head>
 
 <Toast />
 
