@@ -272,7 +272,7 @@
 						id: messageFeed.length,
 						host: false,
 						name: 'AI Bot',
-						message: `You have choosen to go through quizzes for the current topic. Quiz ${currentQuizIndex + 1}: ${quizzes[currentQuizIndex].question}`
+						message: `Quiz ${currentQuizIndex + 1}: ${quizzes[currentQuizIndex].question}`
 					}
 				];
 				break;
