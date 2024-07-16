@@ -27,19 +27,17 @@
 			<svelte:fragment slot="lead">
 				<span class="h2 bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">doc2plan</span>
 			</svelte:fragment>
-			<svelte:fragment slot="default">
-				<div class="flex items-center space-x-4">
-					<button class="btn variant-soft" on:click={() => goto(`${base}/creator`)}>
-						Creator
-					</button>
-					<button class="btn variant-soft" on:click={() => goto(`${base}/viewer`)}>
-						Viewer
-					</button>
-					<button class="btn variant-soft" on:click={() => goto(`${base}/settings`)}>
-						Settings
-					</button>
-				</div>
-			</svelte:fragment>
+			<div class="flex items-center space-x-4">
+				<button class="btn variant-soft" on:click={() => goto(`${base}/creator`)}>
+					Creator
+				</button>
+				<button class="btn variant-soft" on:click={() => goto(`${base}/viewer`)}>
+					Viewer
+				</button>
+				<button class="btn variant-soft" on:click={() => goto(`${base}/settings`)}>
+					Settings
+				</button>
+			</div>
 			<svelte:fragment slot="trail">
 				<LightSwitch />
 			</svelte:fragment>
