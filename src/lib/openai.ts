@@ -32,7 +32,7 @@ export async function isValidApiKey(apikey: string): Promise<boolean> {
 // create an assistant
 export async function createAssistant() {
 	const params = {
-		name: 'ihaveaplan',
+		name: 'doc2plan',
 		description: 'Create a learning plan from your documents.',
 		instructions:
 			'You are helpfull assistant that can generate learning plan based on user goals and options.',
@@ -78,7 +78,7 @@ export async function createAssistant() {
 
 export async function updateAssistant() {
 	const params = {
-		name: 'ihaveaplan',
+		name: 'doc2plan',
 		description: 'Create a learning plan from your documents.',
 		instructions:
 			'You are helpfull assistant that can generate learning plan based on user goals and options.',
@@ -149,7 +149,7 @@ export async function uploadFile(file: File) {
 
 		// Create a vector store including our two files.
 		const vectorStore = await openai.beta.vectorStores.create({
-			name: 'ihaveaplan',
+			name: 'doc2plan',
 			file_ids: [response.id],
 			expires_after: {
 				anchor: 'last_active_at',
@@ -848,7 +848,7 @@ export async function deleteOpenAIAssistant(assistantId: string) {
 // create a temporary assistant
 export async function createEmptyAssistant(): Promise<string> {
 	const params = {
-		name: 'ihaveaplan',
+		name: 'doc2plan',
 		description: 'Chat with the assistant.',
 		instructions:'You are helpfull assistant.',
 		model: get(openaiStore).model,
