@@ -120,18 +120,26 @@
 <div class="flex flex-col min-w-full border border-surface-500 rounded-container-token p-4 space-y-4 ">
     {#if withAI.assistant}
     <label class="label">
-        <input class="input" type="text" placeholder="Path to content: Topic > Subtopic" bind:value={topic.path} on:change={updateTopic} required/>
+        Path
+        <span class="text-sm text-gray-600">Path helps to find a particular topic in the book. Chapter -> Topic -> Subtopic. </span>
+        <input class="input" type="text" placeholder="Example: Chapter 1 > Introduction to Svelte > Getting Started" bind:value={topic.path} on:change={updateTopic} required/>
     </label>
     {/if}
 
     <!-- title -->
     <label class="label">
-        <input class="input" type="text" placeholder="Title" bind:value={topic.title} on:change={updateTopic} required/>
+        Title
+        <span class="text-sm text-gray-600">The title of the topic. Used only in Viewer.</span>
+        <input class="input" type="text" placeholder="Enter the topic title" bind:value={topic.title} on:change={updateTopic} required/>
     </label>
 
     <!-- content -->
     <label class="label">
-        Content (<a class="underline" href="https://en.wikipedia.org/wiki/Markdown">Markdown format</a>):
+        Content
+        <span class="text-sm text-gray-600">
+            <a class="underline" href="https://en.wikipedia.org/wiki/Markdown">Markdown format</a>
+        </span>
+
         <textarea class="textarea" placeholder="Content in Markdown format" bind:value={topic.content} required on:change={updateTopic}></textarea>
     </label>
 
