@@ -134,9 +134,21 @@
         <textarea class="textarea" placeholder="Content" bind:value={topic.content} required on:change={updateTopic}></textarea>
     </label>
 
-    <!-- if with AI then show button regenerate -->
-    {#if withAI.assistant}
-        <div>
+    <!-- if with AI then show button regenerate -->   
+    <div class="flex">
+        {#if withAI.api}
+        <button class="btn btn-sm variant-filled" on:click={() => rewriterOpen = !rewriterOpen}>
+            {#if rewriterOpen}
+                <Fa icon={faEye} />
+            {:else}
+                <Fa icon={faEyeSlash} />
+            {/if}
+
+            <span class="ml-2">Rewriter</span>
+        </button>
+        {/if}
+
+        {#if withAI.assistant}
             <button class="btn btn-sm variant-filled-secondary" on:click={generateContent} disabled={loading}>
                 {#if loading}
                     <Fa icon={faSpinner} class="animate-spin"/>
@@ -144,23 +156,10 @@
                     Generate content
                 {/if}
             </button>
-        </div>
-    {/if}
+        {/if}
+    </div>
 
     {#if withAI.api}
-        <!-- button which will open/hide content rewriter -->
-        <div>
-            <button class="btn btn-sm variant-filled" on:click={() => rewriterOpen = !rewriterOpen}>
-                {#if rewriterOpen}
-                    <Fa icon={faEye} />
-                {:else}
-                    <Fa icon={faEyeSlash} />
-                {/if}
-
-                <span class="ml-2">Rewriter</span>
-            </button>
-        </div>
-
         <!-- rewriter div -->
         {#if rewriterOpen}
             <div class="mb-4">
