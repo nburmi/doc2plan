@@ -30,8 +30,6 @@ declare global {
 		done: boolean;
 	};
 
-	OpenAIVoices: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
-
 	type OpenAI = {
 		apiKey: string;
 		assistantId: string;
@@ -40,9 +38,10 @@ declare global {
 		model: string;
 		temperature: number;
 		reset(): void;
-		audioVoice: OpenAIVoices;
+		audioVoice:  'alloy' | 'echo' | 'fable' | 'nova' | 'onyx' | 'shimmer';
 		audioModel: string;
 		audioSpeed: number;
+		completionMaxTokens: number;
 	};
 }
 

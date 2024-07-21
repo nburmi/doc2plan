@@ -3,9 +3,9 @@
     import Quizzes from './Quizzes.svelte';
     import { createEventDispatcher } from 'svelte';
     import { Fa } from 'svelte-fa';
-    import { faTrash, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
+    import { faTrash, faPlus, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
     import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-    import { generateTopicContent } from '$lib/openai';
+    import { completion, generateTopicContent } from '$lib/openai';
     import { sendErrorToast } from '$lib/alertToast';
 
 
@@ -95,6 +95,25 @@
             updateTopic();
         };
     }
+
+    let contentPrompt = 'Rewrite this {content} to make it more engaging and informative.';
+    let rewriteLoading = false;
+    let rewriterOpen = false;
+
+    async function rewriteContent() {
+        rewriteLoading = true;
+        const prompt = contentPrompt.replace('{content}', `content: "${topic.content || ''}"`) + 'Answer in markdown format.';
+
+        try {
+            const content = await completion(prompt);
+            topic.content = content;
+            updateTopic();
+        } catch (error: unknown) {
+            sendErrorToast(`rewrite content: ${error}`);
+        } finally {
+            rewriteLoading = false;
+        }
+    }
 </script>
 
 
@@ -115,9 +134,21 @@
         <textarea class="textarea" placeholder="Content" bind:value={topic.content} required on:change={updateTopic}></textarea>
     </label>
 
-    <!-- if with AI then show button regenerate -->
-    {#if withAI.assistant}
-        <div>
+    <!-- if with AI then show button regenerate -->   
+    <div class="flex">
+        {#if withAI.api}
+        <button class="btn btn-sm variant-filled" on:click={() => rewriterOpen = !rewriterOpen}>
+            {#if rewriterOpen}
+                <Fa icon={faEye} />
+            {:else}
+                <Fa icon={faEyeSlash} />
+            {/if}
+
+            <span class="ml-2">Rewriter</span>
+        </button>
+        {/if}
+
+        {#if withAI.assistant}
             <button class="btn btn-sm variant-filled-secondary" on:click={generateContent} disabled={loading}>
                 {#if loading}
                     <Fa icon={faSpinner} class="animate-spin"/>
@@ -125,7 +156,27 @@
                     Generate content
                 {/if}
             </button>
-        </div>
+        {/if}
+    </div>
+
+    {#if withAI.api}
+        <!-- rewriter div -->
+        {#if rewriterOpen}
+            <div class="mb-4">
+                <!-- this prompt can modify/add content of topic -->
+                <label class="label">
+                    <textarea class="textarea" placeholder="" bind:value={contentPrompt}></textarea>
+                </label>
+
+                <button class="btn btn-sm variant-filled-secondary" on:click={rewriteContent} disabled={rewriteLoading}>
+                    {#if rewriteLoading}
+                        <Fa icon={faSpinner} class="animate-spin"/>
+                    {:else}
+                        Rewrite
+                    {/if}
+                </button>
+            </div>
+        {/if}
     {/if}
 
     <!-- quizzes -->
