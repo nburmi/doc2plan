@@ -213,7 +213,7 @@
 
 		const quiz = quizzes[currentQuizIndex];
 		// prompt user should answer the quiz
-		const promptUser = `Dear AI, I would like to go through the quizzes for the topic "${topic.title}". Here is the quiz: "${quiz.question}" and answer: "${quiz.answer}". Please provide feedback on my answer.`;
+		const promptUser = `Dear AI, I would like to go through the quizzes for the topic "${topic.title}". Here is the quiz: "${quiz.question}" and answer: "${quiz.answer}".`;
 		const promptAssistant = `Understood. I will provide feedback on your answer to the quiz: "${quiz.question}" and compare your answer to the correct answer: "${quiz.answer}". Let's start!`;
 
 		try {
