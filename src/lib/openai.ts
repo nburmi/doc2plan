@@ -873,3 +873,33 @@ export async function createEmptyAssistant(): Promise<string> {
 		throw new Error(`Error creating assistant: ${error}`);
 	}
 }
+
+export async function completion(prompt: string) : Promise<string>  {
+	const openai = new OpenAI({
+		apiKey: get(openaiStore).apiKey,
+		dangerouslyAllowBrowser: true
+	});
+
+	try {
+		const response = await openai.chat.completions.create({
+			model: get(openaiStore).model,
+			messages: [
+				{
+					role: 'system',
+					content: 'You are helpfull assistant.'
+				},
+				{
+					role: 'user',
+					content: prompt
+				}
+			],
+			max_tokens: get(openaiStore).completionMaxTokens || 1024,
+			temperature: get(openaiStore).temperature,
+			stream: false,
+		});
+
+		return response.choices[0].message.content || '';
+	} catch (error) {
+		throw new Error(`Error completing text: ${error}`);
+	}
+}

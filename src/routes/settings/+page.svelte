@@ -30,7 +30,8 @@
 			reset: value.reset,
 			audioModel: value.audioModel,
 			audioVoice: value.audioVoice,
-			audioSpeed: value.audioSpeed
+			audioSpeed: value.audioSpeed,
+			completionMaxTokens: value.completionMaxTokens,
 		};
 	});
 
@@ -52,7 +53,8 @@
 		'assistantId',
 		'audioModel',
 		'audioVoice',
-		'audioSpeed'
+		'audioSpeed',
+		'completionMaxTokens'
 	];
 
 	function objectsAreEqual(a: typeof data, b: typeof data, keys: (keyof typeof data)[]) {
@@ -80,6 +82,7 @@
 			value.audioModel = data.audioModel;
 			value.audioVoice = data.audioVoice;
 			value.audioSpeed = data.audioSpeed;
+			value.completionMaxTokens = data.completionMaxTokens;
 			return value;
 		});
 
@@ -262,6 +265,18 @@
 							disabled
 						/>
 					</label>
+
+					<label class="label">
+						<span>
+							Max tokens for content rewriting (0 for no limit)
+						</span>
+						<input
+							class="input"
+							type="number"
+							placeholder="OpenAI max tokens"
+							bind:value={data.completionMaxTokens}
+						/>
+
 				</div></svelte:fragment
 			>
 		</AccordionItem>
