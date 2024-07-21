@@ -100,6 +100,8 @@ npm install
 npm run dev -- --open
 ```
 
+Will be opened at [localhost](http://localhost:5173)
+
 #### Live demo
 
 For live demo navigate to [https://doc2plan.vercel.app](https://doc2plan.vercel.app).
