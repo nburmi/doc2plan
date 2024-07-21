@@ -131,7 +131,8 @@
 
     <!-- content -->
     <label class="label">
-        <textarea class="textarea" placeholder="Content" bind:value={topic.content} required on:change={updateTopic}></textarea>
+        Content (<a class="underline" href="https://en.wikipedia.org/wiki/Markdown">Markdown format</a>):
+        <textarea class="textarea" placeholder="Content in Markdown format" bind:value={topic.content} required on:change={updateTopic}></textarea>
     </label>
 
     <!-- if with AI then show button regenerate -->   
