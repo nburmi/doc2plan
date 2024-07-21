@@ -12,6 +12,9 @@ This project is a browser-based application designed to create personalized and 
 
 https://github.com/user-attachments/assets/a4e96fc5-a79a-4a8e-98d9-767e79e5dfbf
 
+Book in demo: [Database Design – 2nd Edition by Adrienne Watt and Watt, Adrienne](https://opentextbc.ca/dbdesign01/)
+
+
 ### Creator
 
 **Important note: AI sometimes hallucinates and generates incorrect information. Please verify the generated content before using it for learning purposes.**
@@ -70,6 +73,34 @@ To use this application, you only need a modern web browser.
 For the AI-driven features, you will need an OpenAI API key.
 
 ### Installation
+
+#### Running Locally
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/nburmi/doc2plan.git
+```
+
+2. Navigate to the project directory:
+
+```bash
+cd doc2plan
+```
+
+3. Install dependencies:
+
+```bash
+npm install
+```
+
+4. Start the development server:
+
+```bash
+npm run dev -- --open
+```
+
+#### Live demo
 
 For live demo navigate to [https://doc2plan.vercel.app](https://doc2plan.vercel.app).
 
