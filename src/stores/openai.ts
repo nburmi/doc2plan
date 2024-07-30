@@ -18,4 +18,5 @@ export const openaiStore = persisted<OpenAI>('openai', {
 	audioModel: 'tts-1',
 	audioVoice: 'alloy',
 	audioSpeed: 1,
+	completionMaxTokens: 0
 });
