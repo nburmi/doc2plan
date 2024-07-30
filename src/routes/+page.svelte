@@ -7,13 +7,6 @@
 
 
 <div class="container max-w-5xl mx-auto p-4 rounded-lg mt-5 space-y-4">
-    <h2 class="h2">
-        Welcome to doc2plan, where you transform documents into dynamic learning experiences. 
-    </h2>
-    <h3 class="h3">
-        Create, view, and manage your learning plans seamlessly in your browser.
-    </h3>
-
     <div class="card bg-gradient-to-br variant-gradient-secondary-tertiary">
         <header class="card-header">
             <h3 class="h3">Creator</h3>
